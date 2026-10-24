@@ -77,6 +77,10 @@ header{padding:calc(22px + var(--sat)) 20px 6px;display:flex;align-items:flex-st
 .grad{position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,0) 45%,rgba(0,0,0,.55) 72%,rgba(0,0,0,.92) 100%)}
 .card.lit .tag .nm{color:#fff}
 .card.lit .tag .dt{color:rgba(255,255,255,.62)}
+.ph.off{display:grid;place-items:center;padding:16% 9% 26%}
+.ph.off img{width:100%;height:100%;object-fit:contain}
+.dphoto.off img{object-fit:contain;padding:10% 8% 22%;box-sizing:border-box}
+.opt{margin-left:6px;font-size:11px;color:#555;font-weight:400}
 .card.sailed .ph img{filter:grayscale(1) contrast(1.05) brightness(.8)}
 .card .mini-stamp{position:absolute;top:8px;right:8px;width:44px;height:44px;z-index:3;transform:rotate(-14deg);opacity:.9}
 /* light-up B 显影: initial state here, motion driven by revealB() (Web Animations) */
@@ -692,6 +696,8 @@ const save = () => Store.persist();
 const cur = () => Store.s.series.find(x => x.id === Store.s.current) || Store.s.series[0];
 const shoesOf = sid => Store.s.shoes.filter(x => x.seriesId === sid);
 const shoe = id => Store.s.shoes.find(x => x.id === id);
+const litSrc = x => Store.photo(x) || offImg(x.name) || '';
+const isOff = x => !Store.photo(x) && !!offImg(x.name);
 
 /* ---------- render ---------- */
 let justLit = null;
@@ -755,7 +761,7 @@ function cardHTML(x,i){
   const d = `style="animation-delay:${Math.min(i,8)*30}ms"`;
   if(!x.lit) return `<div class="card unlit${offImg(x.name)?' has-img':''}" data-id="${x.id}" ${d}>${offImg(x.name)?`<div class="sil has-off">${sil()}</div><div class="offimg"><img src="${offImg(x.name)}" alt="" loading="lazy" decoding="async"></div>`:`<div class="sil">${sil()}</div>`}<span class="corner">待点亮</span><div class="tag"><div class="nm">${esc(x.name)}</div><div class="dt">----.--.--</div></div></div>`;
   const cls = ['card','lit']; if(x.sailed) cls.push('sailed'); if(justLit===x.id) cls.push('reveal');
-  return `<div class="${cls.join(' ')}" data-id="${x.id}" ${justLit===x.id?'':d}><div class="sil">${sil()}</div><div class="ph"><img src="${Store.photo(x)}" alt="" decoding="async"></div><div class="grad"></div>${justLit===x.id?ghostHTML(x):''}${x.sailed?`<div class="mini-stamp">${stampSvg()}</div>`:''}<div class="tag"><div class="nm">${esc(x.name)}</div><div class="dt">${x.sailed?'已远航 · ':''}${fmt(x.date)}</div></div></div>`;
+  return `<div class="${cls.join(' ')}" data-id="${x.id}" ${justLit===x.id?'':d}><div class="sil">${sil()}</div><div class="ph${isOff(x)?' off':''}">${litSrc(x)?`<img src="${litSrc(x)}" alt="" decoding="async">`:''}</div><div class="grad"></div>${justLit===x.id?ghostHTML(x):''}${x.sailed?`<div class="mini-stamp">${stampSvg()}</div>`:''}<div class="tag"><div class="nm">${esc(x.name)}</div><div class="dt">${x.sailed?'已远航':''}${x.sailed&&x.date?' · ':''}${x.date?fmt(x.date):(x.sailed?'':'已点亮')}</div></div></div>`;
 }
 
 /* ---------- toast & dialog ---------- */
@@ -902,31 +908,35 @@ $('#filePhoto').onchange=async e=>{
 function memorySheet(opt){
   const x=shoe(opt.id); if(!x) return;
   const isEdit=opt.mode==='edit';
+  const se=Store.s.series.find(z=>z.id===x.seriesId), sn=se?se.name:'';
+  const cws=COLORWAYS[sn.toUpperCase()]||[];
   editDraft={photo:opt.photo || Store.photo(x) || null};
   const plus='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
   openSheet(`
-    <h2>${isEdit?'编辑回忆':'刻录回忆'}</h2>
-    <p class="sub">${esc(x.name)}${isEdit?'':' · 三步完成点亮'}</p>
-    ${isEdit?`<label class="label">配色名称</label><input class="field" id="inName" maxlength="60" value="${esc(x.name)}">`:''}
-    <label class="label"><span class="stepn">01</span>实拍图</label>
-    <div class="mod" style="margin-top:0"><button class="pick" id="pick"></button><div class="txt"><b id="pickT"></b><span>相册或拍照，会自动压缩保存在本机</span></div></div>
-    <label class="label"><span class="stepn">02</span>入柜日期</label>
+    <h2>${isEdit?'编辑回忆':'点亮'}</h2>
+    <p class="sub">${isEdit?esc(x.name):'选好配色就能点亮，照片、日期和回忆都可以以后再补'}</p>
+    <label class="label"><span class="stepn">01</span>配色</label>
+    ${cws.length?`<div class="chips" style="margin-top:0">${cws.map(k=>{const full=`${sn} ${k}`;return `<button class="chip" data-p="${esc(full)}">${esc(k)}</button>`;}).join('')}</div>`:''}
+    <input class="field" id="inName" maxlength="60" value="${esc(x.name)}" autocomplete="off">
+    <label class="label"><span class="stepn">02</span>实拍图<span class="opt">选填</span></label>
+    <div class="mod" style="margin-top:0"><button class="pick" id="pick"></button><div class="txt"><b id="pickT"></b><span>不传就用官方图，会自动压缩保存</span></div></div>
+    <label class="label"><span class="stepn">03</span>入柜日期<span class="opt">选填</span></label>
     <input class="field mono" type="date" id="inDate" value="${esc(x.date||'')}" max="${todayISO()}">
-    <label class="label"><span class="stepn">03</span>回忆碎片</label>
+    <label class="label"><span class="stepn">04</span>回忆碎片<span class="opt">选填</span></label>
     <textarea class="field" id="inMem" maxlength="300" placeholder="它是怎么来到你身边的？那天的心情是什么样的">${esc(x.memory||'')}</textarea>
     <div class="count" id="memCount">0 / 300</div>
     <button class="btn" id="okMem" style="margin-top:14px">${isEdit?'保存':'点亮'}</button>`, b=>{
-    const mem=b.querySelector('#inMem'), cnt=b.querySelector('#memCount'), dt=b.querySelector('#inDate'), ok=b.querySelector('#okMem'), pick=b.querySelector('#pick');
-    const sync=()=>{ cnt.textContent=`${mem.value.length} / 300`; ok.disabled=!(editDraft.photo && dt.value && mem.value.trim()); };
+    const mem=b.querySelector('#inMem'), cnt=b.querySelector('#memCount'), dt=b.querySelector('#inDate'), ok=b.querySelector('#okMem'), pick=b.querySelector('#pick'), nmI=b.querySelector('#inName');
+    const sync=()=>{ cnt.textContent=`${mem.value.length} / 300`; const v=nmI.value.trim(); ok.disabled=!v; b.querySelectorAll('.chip').forEach(z=>z.classList.toggle('on',z.dataset.p===v)); };
     editDraft.refresh=()=>{ pick.innerHTML=editDraft.photo?`<img src="${editDraft.photo}" alt="">`:plus; pick.style.borderStyle=editDraft.photo?'solid':'dashed'; b.querySelector('#pickT').textContent=editDraft.photo?'更换照片':'选择实拍图'; sync(); };
     editDraft.refresh();
-    mem.oninput=sync; dt.oninput=dt.onchange=sync;
+    b.querySelectorAll('.chip').forEach(z=>z.onclick=()=>{ nmI.value=z.dataset.p; sync(); });
+    mem.oninput=sync; nmI.oninput=sync; dt.oninput=dt.onchange=sync;
     pick.onclick=()=>{ $('#filePhoto').value=''; $('#filePhoto').click(); };
     ok.onclick=()=>{
-      const date=dt.value, memory=mem.value.trim();
-      if(!editDraft.photo||!date||!memory) return;
-      const nm=isEdit ? (b.querySelector('#inName').value.trim() || x.name) : x.name;
-      const okc=commit(()=>{ Object.assign(x,{lit:true,photo:editDraft.photo,date,memory,name:nm}); if(!isEdit) x.litAt=Date.now(); });
+      const nm=nmI.value.trim(); if(!nm) return;
+      const date=dt.value||null, memory=mem.value.trim();
+      const okc=commit(()=>{ Object.assign(x,{lit:true,date,memory,name:nm}); if(editDraft.photo) x.photo=editDraft.photo; if(!isEdit) x.litAt=Date.now(); });
       if(!okc) return;
       closeSheet();
       if(isEdit){ render(); openDetail(x.id,true); toast('已保存'); }
@@ -947,10 +957,10 @@ function openDetail(id, stay){
       <span class="crumb">${esc(s?s.name:'')} 展厅 · #${x.id.slice(-4).toUpperCase()}</span>
       <span style="width:36px"></span>
     </div>
-    <div class="dphoto ${x.sailed?'sailed':''}" id="dPhoto"><img src="${Store.photo(x)}" alt=""><div class="stamp">${stampSvg()}</div>
+    <div class="dphoto ${x.sailed?'sailed':''}${isOff(x)?' off':''}" id="dPhoto">${litSrc(x)?`<img src="${litSrc(x)}" alt="">`:`<div class="sil" style="padding-bottom:18%">${sil()}</div>`}<div class="stamp">${stampSvg()}</div>
       <div class="ov"><div class="dname">${esc(x.name)}</div><div class="dmeta" id="dMeta"></div></div></div>
     <div class="dbody">
-      <div class="dsec" style="margin-top:6px"><div class="label">回忆碎片</div><div class="memory">${esc(x.memory||'')}</div></div>
+      <div class="dsec" style="margin-top:6px"><div class="label">回忆碎片</div><div class="memory${x.memory?'':' empty'}">${x.memory?esc(x.memory):'还没写，点编辑随时补上'}</div></div>
       <div class="dsec"><div class="label">状态</div>
         <div class="seg ${x.sailed?'r':''}" id="seg"><i></i><button data-v="0" class="${x.sailed?'':'on'}">陪伴中</button><button data-v="1" class="${x.sailed?'on':''}">已远航</button></div>
         <p class="seg-note" id="segNote"></p>
@@ -959,7 +969,7 @@ function openDetail(id, stay){
     </div>`;
   const meta=()=>{
     const y=shoe(id);
-    $('#dMeta').innerHTML=`<span>入柜 <b>${fmt(y.date)}</b></span>`+(y.sailed?`<span>远航 <b>${fmt(y.sailedDate)}</b></span><span>相伴 <b>${y.sailedDate?Math.max(1,daysSince(y.date)-daysSince(y.sailedDate)+1):days}</b> 天</span>`:`<span>相伴第 <b>${daysSince(y.date)}</b> 天</span>`);
+    $('#dMeta').innerHTML=!y.date?(y.sailed?`<span>已远航${y.sailedDate?` <b>${fmt(y.sailedDate)}</b>`:''}</span>`:'<span>已点亮</span>'):`<span>入柜 <b>${fmt(y.date)}</b></span>`+(y.sailed?`<span>远航 <b>${fmt(y.sailedDate)}</b></span><span>相伴 <b>${y.sailedDate?Math.max(1,daysSince(y.date)-daysSince(y.sailedDate)+1):days}</b> 天</span>`:`<span>相伴第 <b>${daysSince(y.date)}</b> 天</span>`);
     $('#segNote').textContent=y.sailed?'它已经去了远方，日期和回忆会一直留在这里':'如果有一天它离开了，把状态改成已远航，回忆不会丢';
   };
   meta();
