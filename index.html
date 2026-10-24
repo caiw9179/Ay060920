@@ -72,7 +72,8 @@ header{padding:calc(22px + var(--sat)) 20px 6px;display:flex;align-items:flex-st
 .frame .tgt img{width:74%;max-height:60%;object-fit:contain;filter:grayscale(1);opacity:.35;transition:filter .6s var(--ease),opacity .6s var(--ease)}
 .frame.done .tgt img{filter:none;opacity:1}
 .card .tag{position:absolute;left:12px;right:12px;bottom:11px;z-index:3}
-.card .tag .nm{font-size:13px;font-weight:600;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card .tag .nm{font-size:12.5px;font-weight:600;line-height:1.32;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere}
+.nw{white-space:nowrap}
 .card .tag .dt{font-family:var(--mono);font-size:10px;margin-top:3px;letter-spacing:.06em}
 .card.unlit .tag .nm{color:#6a6a6e;font-size:11px;font-weight:500}
 .card.unlit .tag .dt{display:none}
@@ -136,6 +137,31 @@ textarea.field{min-height:100px;resize:none;line-height:1.7}
 .mod .txt b{display:block;font-size:14px;font-weight:600;color:#eee}
 .mod .txt span{display:block;margin-top:5px;font-size:12px;color:#555;line-height:1.6}
 .stepn{font-family:var(--mono);color:#444;margin-right:6px}
+.cp-tools{position:sticky;top:-10px;z-index:3;background:#000;margin:14px -20px 0;padding:10px 20px 10px}
+.cp-tools .field{padding:11px 14px;font-size:15px;-webkit-appearance:none;appearance:none}
+.cp-f{display:flex;gap:6px;margin-top:10px}
+.cp-f button{flex:1;height:32px;border-radius:999px;border:1px solid #1f1f21;font-size:12px;color:#777;letter-spacing:.06em;transition:all .2s var(--ease)}
+.cp-f button.on{background:#fff;color:#000;border-color:#fff}
+.cp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:4px}
+.cp-yr{grid-column:1/-1;font-family:var(--mono);font-size:10px;color:#444;letter-spacing:.14em;margin:12px 0 2px}
+.cp-t{position:relative;display:flex;flex-direction:column;align-items:stretch;text-align:left;padding:8px 8px 9px;border-radius:12px;background:#0b0b0c;border:1px solid #161618;min-width:0;transition:transform .15s var(--ease),border-color .2s}
+.cp-t:active{transform:scale(.96)}
+.cp-t .im{display:grid;place-items:center;aspect-ratio:16/10;margin-bottom:7px}
+.cp-t .im svg{width:34px;height:34px;color:#2a2a2c}
+.cp-t .im img{max-width:100%;max-height:100%;object-fit:contain;filter:grayscale(1) brightness(.78);opacity:.9}
+.cp-t b{font-size:11px;font-weight:600;line-height:1.35;color:#d6d6d6;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;overflow-wrap:anywhere;min-height:2.7em}
+.cp-t i{font-style:normal;font-family:var(--mono);font-size:9px;color:#4a4a4a;margin-top:4px;letter-spacing:.04em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cp-t em{position:absolute;top:6px;right:7px;font-style:normal;font-family:var(--mono);font-size:8px;color:#000;background:#fff;border-radius:999px;padding:2px 6px;letter-spacing:.04em}
+.cp-t em.u{background:#1c1c1e;color:#8a8a8a}
+.cp-t.lit{border-color:#2c2c2e}
+.cp-t.lit .im img{filter:none;opacity:1}
+.cp-more{text-align:center;font-family:var(--mono);font-size:10px;color:#3a3a3a;letter-spacing:.08em;padding:14px 0 2px;min-height:20px}
+.cw-row{display:flex;align-items:center;gap:10px}
+.cw-row .im{flex:none;width:64px;height:46px;border-radius:10px;background:#0e0e0f;border:1px solid #1c1c1e;display:grid;place-items:center;overflow:hidden;color:#333}
+.cw-row .im img{max-width:90%;max-height:86%;object-fit:contain}
+.cw-row .im svg{width:30px;height:30px}
+.cw-row .field{flex:1;min-width:0}
+.cw-change{margin-top:8px;font-size:12px;color:#777;letter-spacing:.06em;padding:4px 0}
 .sheet .label{margin-top:16px}
 .preview{position:relative;margin-top:18px;border-radius:14px;overflow:hidden;aspect-ratio:16/9;background:#111}
 .preview img{width:100%;height:100%;object-fit:cover;display:block}
@@ -372,53 +398,7 @@ const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
 (() => {
 'use strict';
 const PRESETS = ['AJ1','AJ1 Low','AJ1 Mid','AJ2','AJ3','AJ4','AJ5','AJ6','AJ7','AJ8','AJ9','AJ10','AJ11','AJ12','AJ13','AJ14','AJ15','AJ16','AJ17','AJ18','AJ19','AJ20','AJ21','AJ22','AJ23','AJ24','AJ25','AJ26','AJ27','AJ28','AJ29','AJ30','AJ31','AJ32','AJ33','AJ34','AJ35','AJ36','AJ37','AJ38','AJ39','AJ40','AJ41'];
-/* 经典配色库：[中文名, official/ 下的图片文件名]，来源见 official/sources.json */
-const CATALOG = {
-  AJ1:[["芝加哥 Chicago", "aj1-chicago"], ["禁穿 Banned", "aj1-bred-banned"], ["黑脚趾 Black Toe", "aj1-black-toe"], ["皇家蓝 Royal Reimagined", "aj1-royal"], ["北卡蓝 University Blue", "aj1-university-blue"], ["影子灰 Shadow", "aj1-shadow"], ["Low OG Black Dark Powder Blue", "aj1-low-og-unc"], ["倒钩 Travis Scott Mocha", "aj1-travis-scott"], ["黑曜石 Obsidian", "aj1-obsidian"], ["摩卡 Dark Mocha", "aj1-dark-mocha"], ["扣碎 Shattered Backboard", "aj1-shattered-backboard"], ["Black & Metallic Gold & White", "aj1-black-metallic-gold"], ["Black/Pine Green", "aj1-pine-green"], ["Court Purple", "aj1-court-purple"], ["Light Smoke Grey", "aj1-light-smoke-grey"], ["黑红脚趾 Bred Toe", "aj1-bred-toe"], ["Hyper Royal", "aj1-hyper-royal"], ["Midnight Navy", "aj1-midnight-navy"], ["Electro Orange", "aj1-electro-orange"], ["小闪电 Game Royal", "aj1-game-royal"]],
-  AJ2:[["Chicago", "aj2-chicago"], ["Low University Blue", "aj2-low-unc"], ["Black Cement", "aj2-black-cement"], ["Fire Red", "aj2-fire-red"], ["Lucky Green", "aj2-lucky-green"], ["White and Cement Grey", "aj2-white-cement"], ["x UNION Grey Fog", "aj2-union-grey-fog"], ["Low Python", "aj2-low-python"], ["Low TITAN", "aj2-low-titan"], ["J Balvin", "aj2-j-balvin"], ["Low x Off-White White and Varsity Red", "aj2-off-white-low-white-red"], ["Low x Off-White Black and Varsity Royal", "aj2-off-white-low-black-royal"], ["Low Melon Tint", "aj2-low-melon-tint"], ["Low Cherrywood", "aj2-low-cherrywood"], ["A Ma Maniére Airness", "aj2-a-ma-maniere-airness"]],
-  AJ3:[["白水泥 White Cement Reimagined", "aj3-white-cement-reimagined"], ["黑水泥 Black Cement", "aj3-black-cement"], ["Fire Red", "aj3-fire-red"], ["True Blue", "aj3-true-blue"], ["黑猫 Black Cat", "aj3-black-cat"], ["Fear", "aj3-fear"], ["Cardinal Red", "aj3-cardinal-red"], ["Racer Blue", "aj3-racer-blue"], ["Medium Olive", "aj3-medium-olive"], ["Hall of Fame", "aj3-hall-of-fame"], ["Valor Blue", "aj3-valour-blue"], ["Seoul", "aj3-seoul"], ["Tinker", "aj3-tinker"], ["Archaeo Brown", "aj3-archaeo-brown"], ["Cement Grey", "aj3-cement-grey"], ["White and Silver", "aj3-white-and-silver"], ["Black and Hyper Jade", "aj3-black-hyper-jade"], ["Rare Air", "aj3-rare-air"]],
-  AJ4:[["白水泥 White Cement", "aj4-white-cement"], ["黑猫 Black Cat", "aj4-black-cat"], ["Bred Reimagined", "aj4-bred-reimagined"], ["Red Cement", "aj4-red-cement"], ["Craft Olive", "aj4-craft-medium-olive"], ["Metallic Purple", "aj4-metallic-purple"], ["Fire Red", "aj4-fire-red"], ["Military Black", "aj4-military-black"], ["雷神 Thunder", "aj4-thunder"], ["红雷神 Red Thunder", "aj4-red-thunder"], ["University Blue", "aj4-university-blue"], ["Tech White", "aj4-white-oreo"], ["Cool Grey", "aj4-cool-grey"], ["Midnight Navy", "aj4-midnight-navy"], ["Nike SB Pine Green", "aj4-sb-pine-green"], ["Oxidised Green", "aj4-oxidized-green"], ["Travis Scott Cactus Jack", "aj4-travis-scott-cactus-jack"], ["SE Wet Cement", "aj4-wet-cement"], ["Industrial Blue", "aj4-industrial-blue"]],
-  AJ5:[["葡萄 Grape", "aj5-grape"], ["Fire Red", "aj5-fire-red"], ["奥利奥 Moonlight", "aj5-oreo"], ["Reimagined", "aj5-black-metallic-reimagined"], ["OG White and Metallic Silver", "aj5-white-metallic-silver"], ["Burgundy", "aj5-burgundy"], ["University Blue", "aj5-university-blue"], ["绿豆 Green Bean", "aj5-green-bean"], ["Anthracite", "aj5-anthracite"], ["Purple Grape", "aj5-purple-grape"], ["Aqua", "aj5-aqua"], ["Racer Blue", "aj5-racer-blue"], ["What The", "aj5-what-the"], ["Olive", "aj5-olive"], ["Island Green", "aj5-island-green"], ["White and Black", "aj5-white-and-black"], ["Raging Bull", "aj5-raging-bull-toro-bravo"]],
-  AJ6:[["Black Infrared", "aj6-black-infrared"], ["Carmine", "aj6-carmine"], ["White and Midnight Navy", "aj6-olympic"], ["Infrared Salesman", "aj6-infrared-salesman"], ["Travis Scott", "aj6-travis-scott"], ["Toro Bravo", "aj6-toro-bravo"], ["Cool Grey", "aj6-cool-grey"], ["Black and White", "aj6-black-and-white"], ["White and Black", "aj6-white-and-black"], ["Aqua", "aj6-aqua"], ["Maroon", "aj6-maroon"], ["Gatorade Pine Green", "aj6-gatorade"], ["Yellow Ochre", "aj6-yellow-ochre"], ["x PSG Metallic Silver", "aj6-paris-saint-germain"], ["Chinese New Year", "aj6-chinese-new-year"]],
-  AJ7:[["Cardinal", "aj7-cardinal"], ["Bright Concord", "aj7-bright-concord"], ["Olive", "aj7-olive"], ["Black Gloss", "aj7-black-gloss"], ["x Trophy Room True Red and Obsidian", "aj7-trophy-room"], ["Neutral Indigo and Bright Crimson", "aj7-neutral-indigo"], ["兔八哥 Hare", "aj7-hare"], ["Citrus", "aj7-citrus"], ["Bordeaux", "aj7-bordeaux"], ["Flint", "aj7-flint"], ["Olympic", "aj7-olympic"], ["Raptors", "aj7-raptors"], ["French Blue", "aj7-french-blue"], ["Paris Saint-Germain", "aj7-paris-saint-germain"], ["Olympic Tinker Alternate", "aj7-tinker-alternate"]],
-  AJ8:[["Playoffs", "aj8-playoffs"], ["Aqua", "aj8-aqua"], ["Confetti", "aj8-confetti"], ["OVO Black & Metallic Gold", "aj8-ovo-black"], ["OVO White & Metallic Gold", "aj8-ovo-white"], ["White and True Red", "aj8-white-true-red"], ["Championship Trophy", "aj8-championship-trophy"], ["Chrome", "aj8-chrome"], ["x SoleFly Mi Casa es Su Casa", "aj8-solefly"], ["兔八哥 Bugs Bunny", "aj8-bugs-bunny"], ["Three Peat", "aj8-three-peat"], ["Cool Grey", "aj8-cool-grey"], ["South Beach", "aj8-south-beach"], ["Black Cement", "aj8-black-cement"], ["Phoenix Suns", "aj8-phoenix-suns"]],
-  AJ9:[["Cool Grey", "aj9-cool-grey"], ["OG White & Black", "aj9-og-white-black"], ["Anthracite", "aj9-anthracite"], ["Olive", "aj9-olive"], ["Light Olive", "aj9-light-olive"], ["Melo", "aj9-melo"], ["Statue", "aj9-statue"], ["Flint Grey and French Blue", "aj9-flint-grey-french-blue"], ["Black & University Red", "aj9-black-university-red"], ["Boot Black and Gum Light Brown", "aj9-boot-black-gum"], ["Black and Particle Grey", "aj9-particle-grey"], ["University Blue", "aj9-university-blue"], ["University Gold", "aj9-university-gold"], ["Chile Red", "aj9-chile-red"], ["Powder Blue", "aj9-powder-blue"]],
-  AJ10:[["Charred Grey and Black", "aj10-charred-grey"], ["Rio", "aj10-rio"], ["OVO Black", "aj10-ovo-black"], ["Bulls Over Broadway", "aj10-bulls-over-broadway"], ["SB Multi-Color", "aj10-multi-color"], ["Chicago Bulls", "aj10-chicago"], ["Orlando", "aj10-orlando"], ["Seattle", "aj10-seattle"], ["Steel", "aj10-steel"], ["Light Smoke Grey", "aj10-cement"], ["Shadow", "aj10-shadow"], ["Double Nickel", "aj10-double-nickel"], ["I'm Back", "aj10-im-back"], ["Woodland Camo", "aj10-woodland-camo"], ["Ice Blue", "aj10-ice-blue"]],
-  AJ11:[["康扣 Concord", "aj11-concord"], ["大魔王 Black/Red", "aj11-bred"], ["伽马蓝 Gamma", "aj11-gamma-blue"], ["传奇蓝 Legend Blue", "aj11-legend-blue"], ["72-10", "aj11-72-10"], ["酷灰 Cool Grey", "aj11-cool-grey"], ["太空大灌篮 Black & Concord-White", "aj11-space-jam"], ["樱桃红 Varsity Red", "aj11-cherry"], ["Midnight Navy", "aj11-midnight-navy"], ["Low Bred", "aj11-low-bred"], ["Low Cement Grey", "aj11-low-cement-grey"], ["Low University Blue", "aj11-low-university-blue"], ["Low Cool Grey", "aj11-low-cool-grey"], ["Low White & Metallic Gold", "aj11-low-white-metallic-gold"], ["Low Diffused Blue", "aj11-low-diffused-blue"], ["DMP Gratitude", "aj11-dmp-gratitude"]],
-  AJ12:[["金扣 Taxi", "aj12-taxi"], ["流感 Flu Game", "aj12-flu-game"], ["Black Taxi", "aj12-black-taxi"], ["French Blue", "aj12-french-blue"], ["Playoffs", "aj12-playoffs"], ["Cherry", "aj12-cherry"], ["Indigo", "aj12-indigo"], ["University Gold", "aj12-university-gold"], ["Wings", "aj12-wings"], ["Deep Royal Blue", "aj12-deep-royal-blue"], ["Red Metallic", "aj12-red-metallic"], ["Wool Dark Grey & Black", "aj12-wool-dark-grey"], ["White & Game Royal", "aj12-white-game-royal"], ["CNY", "aj12-cny-2017"]],
-  AJ13:[["熊猫 He Got Game", "aj13-he-got-game"], ["黑猫 Black Cat", "aj13-black-cat"], ["Wheat", "aj13-wheat"], ["Court Purple", "aj13-court-purple"], ["Black Flint", "aj13-black-flint"], ["Flint Grey", "aj13-flint-grey"], ["Playoffs", "aj13-playoffs"], ["Lucky Green", "aj13-lucky-green"], ["Island Green", "aj13-island-green"], ["Obsidian", "aj13-obsidian"], ["Reflective Silver", "aj13-reflective-silver"], ["Dune Red", "aj13-dune-red"], ["Black and University Blue", "aj13-black-university-blue"], ["Wolf Grey", "aj13-wolf-grey"], ["White and University Red", "aj13-white-university-red"], ["White and Midnight Navy", "aj13-white-midnight-navy"], ["Low Bred", "aj13-low-bred"]],
-  "AJ1 Low":[["OG Chicago", "aj1low-low-og-chicago-2025"], ["Bred Toe", "aj1low-low-bred-toe"]],
-  "AJ1 Mid":[["Banned", "aj1mid-mid-banned-2020"], ["Light Smoke Grey Anthracite", "aj1mid-mid-light-smoke-grey-anthracite"]],
-  AJ14:[["Last Shot", "aj14-retro-last-shot-2018"], ["Black Toe", "aj14-retro-black-toe-2014"]],
-  AJ15:[["Stealth", "aj15-retro-stealth-2017"], ["Obsidian", "aj15-retro-obsidian"]],
-  AJ16:[["Midnight Navy", "aj16-retro-midnight-navy-2016"], ["CEO", "aj16-retro-ceo"]],
-  AJ17:[["Low All-Star Lightning", "aj17-retro-low-all-star-lightning-2024"], ["Low SoleFly Alternate Lightning", "aj17-retro-low-solefly-alternate-lightning"]],
-  AJ18:[["Black Sport Royal", "aj18-retro-black-sport-royal"]],
-  AJ19:[["White Flint Grey", "aj19-retro-white-flint-grey"]],
-  AJ20:[["30th Anniversary Laser", "aj20-retro-30th-anniversary-laser"], ["Stealth", "aj20-retro-stealth-2015"]],
-  AJ21:[["OG Flint Grey", "aj21-og-flint-grey"]],
-  AJ22:[["OG Omega", "aj22-og-omega"], ["OG White Varsity Red", "aj22-og-white-varsity-red"]],
-  AJ23:[["Jordan 23 Chicago", "aj23-chicago"]],
-  AJ24:[["2009 Black White", "aj24-air-jordan-2009-black-white"]],
-  AJ25:[["2010 Black Varsity Red", "aj25-air-jordan-2010-black-varsity-red"]],
-  AJ26:[["2011 All-Star White Royal", "aj26-air-jordan-2011-all-star-white-royal"], ["2011 Team Red White", "aj26-air-jordan-2011-team-red-white"]],
-  AJ27:[["2012 UNC", "aj27-air-jordan-2012-unc"]],
-  AJ28:[["XX8 Green Camo", "aj28-xx8-green-camo"], ["XX8 Blue Camo", "aj28-xx8-blue-camo"]],
-  AJ29:[["XX9 Gym Red", "aj29-xx9-gym-red"]],
-  AJ30:[["XXX Black Cat", "aj30-xxx-black-cat"]],
-  AJ31:[["XXX1 Banned", "aj31-xxx1-banned"], ["XXX1 Black Toe", "aj31-xxx1-black-toe"]],
-  AJ32:[["XXXII Rosso Corsa", "aj32-xxxii-rosso-corsa"]],
-  AJ33:[["XXXIII Blackout", "aj33-xxxiii-blackout"]],
-  AJ34:[["XXXIV Eclipse", "aj34-xxxiv-eclipse"]],
-  AJ35:[["XXXV Center of Gravity", "aj35-xxxv-center-of-gravity"]],
-  AJ36:[["Year of the Tiger", "aj36-36-year-of-the-tiger"]],
-  AJ37:[["Hare", "aj37-37-hare"]],
-  AJ38:[["Fundamentals", "aj38-38-fundamentals-clear-sole"]],
-  AJ39:[["Sol", "aj39-39-sol"]],
-  AJ40:[["Chicago", "aj40-40-chicago"], ["The Classic", "aj40-40-the-classic"]],
-  AJ41:[["University Red", "aj41-41-university-red"]]
-};
-const COLORWAYS = Object.fromEntries(Object.entries(CATALOG).map(([k,v]) => [k.toUpperCase(), v.map(z => z[0])]));
+/* 配色库：catalog.json 按需加载，每条 [配色名, 图片, 货号, 年份, 标记(c 联名 / w 女款), 官方英文名, 中文颜色]，来源见 official/sources.json 和 names-cn-audit.csv */
 const $ = s => document.querySelector(s);
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -426,16 +406,25 @@ const pad = n => String(n).padStart(2,'0');
 const todayISO = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
 const fmt = iso => iso ? iso.replace(/-/g,'.') : '';
 const daysSince = iso => { if(!iso) return 0; const [y,m,d] = iso.split('-').map(Number); const t = new Date(y,m-1,d); const n = new Date(); n.setHours(0,0,0,0); return Math.max(1, Math.round((n - t)/86400000) + 1); };
-/* 官方产品图：未点亮卡片用，相对路径 official/*.webp */
-const OFFICIAL = {};
-Object.entries(CATALOG).forEach(([k,v]) => v.forEach(([n,f]) => { OFFICIAL[`${k} ${n}`] = `official/${f}.webp`; }));
-/* 旧版配色名兼容 */
-/* 旧版配色名（改用官方名前的叫法）→ 图片，已保存的鞋保留原名仍能显示官方图 */
-const LEGACY_NAMES = {"AJ1 芝加哥": "aj1-chicago", "AJ1 禁穿 Bred": "aj1-bred-banned", "AJ1 黑脚趾": "aj1-black-toe", "AJ1 皇家蓝 Royal": "aj1-royal", "AJ1 北卡蓝": "aj1-university-blue", "AJ1 影子灰": "aj1-shadow", "AJ1 Low 北卡": "aj1-low-og-unc", "AJ1 倒钩": "aj1-travis-scott", "AJ1 黑曜石": "aj1-obsidian", "AJ1 摩卡": "aj1-dark-mocha", "AJ1 扣碎": "aj1-shattered-backboard", "AJ1 黑金": "aj1-black-metallic-gold", "AJ1 黑绿": "aj1-pine-green", "AJ1 黑紫": "aj1-court-purple", "AJ1 烟灰": "aj1-light-smoke-grey", "AJ1 北卡脚趾": "aj1-unc-toe", "AJ1 黑红脚趾": "aj1-bred-toe", "AJ1 冰蓝": "aj1-hyper-royal", "AJ1 藏青": "aj1-midnight-navy", "AJ1 电光橙": "aj1-electro-orange", "AJ2 白红": "aj2-white-varsity-red", "AJ2 芝加哥": "aj2-chicago", "AJ2 白蓝": "aj2-low-unc", "AJ2 黑水泥": "aj2-black-cement", "AJ2 火焰红": "aj2-fire-red", "AJ2 幸运绿": "aj2-lucky-green", "AJ2 白水泥": "aj2-white-cement", "AJ2 雾灰 Union": "aj2-union-grey-fog", "AJ2 蟒纹": "aj2-low-python", "AJ2 Titan": "aj2-low-titan", "AJ2 J Balvin": "aj2-j-balvin", "AJ2 OW 白红": "aj2-off-white-low-white-red", "AJ2 OW 黑蓝": "aj2-off-white-low-black-royal", "AJ2 蜜瓜": "aj2-low-melon-tint", "AJ2 樱桃木": "aj2-low-cherrywood", "AJ3 白水泥": "aj3-white-cement-reimagined", "AJ3 黑水泥": "aj3-black-cement", "AJ3 火焰红": "aj3-fire-red", "AJ3 真青 True Blue": "aj3-true-blue", "AJ3 黑猫": "aj3-black-cat", "AJ3 恐惧": "aj3-fear", "AJ3 红雀": "aj3-cardinal-red", "AJ3 赛车蓝": "aj3-racer-blue", "AJ3 橄榄": "aj3-medium-olive", "AJ3 名人堂": "aj3-hall-of-fame", "AJ3 勇气蓝": "aj3-valour-blue", "AJ3 首尔": "aj3-seoul", "AJ3 Tinker": "aj3-tinker", "AJ3 橡木棕": "aj3-archaeo-brown", "AJ3 水泥灰": "aj3-cement-grey", "AJ3 白银": "aj3-white-and-silver", "AJ3 翡翠": "aj3-black-hyper-jade", "AJ3 Rare Air": "aj3-rare-air", "AJ4 白水泥": "aj4-white-cement", "AJ4 黑猫": "aj4-black-cat", "AJ4 公牛": "aj4-bred-reimagined", "AJ4 红水泥": "aj4-red-cement", "AJ4 军绿": "aj4-craft-medium-olive", "AJ4 紫葡萄": "aj4-metallic-purple", "AJ4 火焰红": "aj4-fire-red", "AJ4 军事黑": "aj4-military-black", "AJ4 雷神": "aj4-thunder", "AJ4 红雷神": "aj4-red-thunder", "AJ4 北卡蓝": "aj4-university-blue", "AJ4 白奥利奥": "aj4-white-oreo", "AJ4 酷灰": "aj4-cool-grey", "AJ4 藏青": "aj4-midnight-navy", "AJ4 SB 松绿": "aj4-sb-pine-green", "AJ4 氧化绿": "aj4-oxidized-green", "AJ4 TS 仙人掌": "aj4-travis-scott-cactus-jack", "AJ4 湿水泥": "aj4-wet-cement", "AJ4 工业蓝": "aj4-industrial-blue", "AJ5 葡萄": "aj5-grape", "AJ5 火焰红": "aj5-fire-red", "AJ5 奥利奥": "aj5-oreo", "AJ5 黑金属": "aj5-black-metallic-reimagined", "AJ5 白金属": "aj5-white-metallic-silver", "AJ5 酒红": "aj5-burgundy", "AJ5 北卡蓝": "aj5-university-blue", "AJ5 绿豆": "aj5-green-bean", "AJ5 碳灰": "aj5-anthracite", "AJ5 紫葡萄": "aj5-purple-grape", "AJ5 水蓝": "aj5-aqua", "AJ5 赛车蓝": "aj5-racer-blue", "AJ5 鸳鸯": "aj5-what-the", "AJ5 橄榄": "aj5-olive", "AJ5 岛屿绿": "aj5-island-green", "AJ5 白黑": "aj5-white-and-black", "AJ6 黑红": "aj6-black-infrared", "AJ6 白红": "aj6-carmine", "AJ6 奥运": "aj6-olympic", "AJ6 红外线": "aj6-infrared-salesman", "AJ6 TS 橄榄": "aj6-travis-scott", "AJ6 斗牛": "aj6-toro-bravo", "AJ6 酷灰": "aj6-cool-grey", "AJ6 黑白": "aj6-black-and-white", "AJ6 白黑": "aj6-white-and-black", "AJ6 水蓝": "aj6-aqua", "AJ6 酒红": "aj6-maroon", "AJ6 佳得乐": "aj6-gatorade", "AJ6 赭黄": "aj6-yellow-ochre", "AJ6 大巴黎": "aj6-paris-saint-germain", "AJ6 中国年": "aj6-chinese-new-year", "AJ7 红雀": "aj7-cardinal", "AJ7 亮紫": "aj7-bright-concord", "AJ7 橄榄": "aj7-olive", "AJ7 黑亮": "aj7-black-gloss", "AJ7 Trophy Room": "aj7-trophy-room", "AJ7 靛蓝": "aj7-neutral-indigo", "AJ7 兔八哥": "aj7-hare", "AJ7 柑橘": "aj7-citrus", "AJ7 波尔多": "aj7-bordeaux", "AJ7 火石": "aj7-flint", "AJ8 季后赛": "aj8-playoffs", "AJ8 水蓝": "aj8-aqua", "AJ8 五彩": "aj8-confetti", "AJ8 OVO 黑": "aj8-ovo-black", "AJ8 OVO 白": "aj8-ovo-white", "AJ8 白红": "aj8-white-true-red", "AJ8 冠军杯": "aj8-championship-trophy", "AJ8 铬黑": "aj8-chrome", "AJ8 SoleFly": "aj8-solefly", "AJ8 兔八哥": "aj8-bugs-bunny", "AJ9 酷灰": "aj9-cool-grey", "AJ9 白黑": "aj9-og-white-black", "AJ9 碳灰": "aj9-anthracite", "AJ9 橄榄": "aj9-olive", "AJ9 浅橄榄": "aj9-light-olive", "AJ9 甜瓜": "aj9-melo", "AJ9 雕像": "aj9-statue", "AJ9 法国蓝": "aj9-flint-grey-french-blue", "AJ9 黑红": "aj9-black-university-red", "AJ9 靴子": "aj9-boot-black-gum", "AJ9 黑颗粒灰": "aj9-particle-grey", "AJ10 炭灰": "aj10-charred-grey", "AJ10 里约": "aj10-rio", "AJ10 OVO 黑": "aj10-ovo-black", "AJ10 百老汇": "aj10-bulls-over-broadway", "AJ10 多彩": "aj10-multi-color", "AJ10 芝加哥": "aj10-chicago", "AJ10 奥兰多": "aj10-orlando", "AJ10 西雅图": "aj10-seattle", "AJ11 康扣": "aj11-concord", "AJ11 大魔王": "aj11-bred", "AJ11 伽马蓝": "aj11-gamma-blue", "AJ11 传奇蓝": "aj11-legend-blue", "AJ11 72-10": "aj11-72-10", "AJ11 酷灰": "aj11-cool-grey", "AJ11 太空大灌篮": "aj11-space-jam", "AJ11 樱桃红": "aj11-cherry", "AJ11 藏青": "aj11-midnight-navy", "AJ11 Low 黑红": "aj11-low-bred", "AJ11 Low 水泥灰": "aj11-low-cement-grey", "AJ11 Low 北卡蓝": "aj11-low-university-blue", "AJ11 Low 酷灰": "aj11-low-cool-grey", "AJ11 Low 白金": "aj11-low-white-metallic-gold", "AJ11 Low 漫游蓝": "aj11-low-diffused-blue", "AJ12 金扣": "aj12-taxi", "AJ12 流感": "aj12-flu-game", "AJ12 出租车 黑": "aj12-black-taxi", "AJ12 法国蓝": "aj12-french-blue", "AJ12 季后赛": "aj12-playoffs", "AJ12 樱桃红": "aj12-cherry", "AJ12 靛蓝": "aj12-indigo", "AJ12 大学金": "aj12-university-gold", "AJ12 黑红": "aj12-black-varsity-red", "AJ12 Wings": "aj12-wings", "AJ12 深皇家蓝": "aj12-deep-royal-blue", "AJ12 红金属": "aj12-red-metallic", "AJ12 羊毛灰": "aj12-wool-dark-grey", "AJ12 白皇家蓝": "aj12-white-game-royal", "AJ12 中国年": "aj12-cny-2017", "AJ13 熊猫": "aj13-he-got-game", "AJ13 黑猫": "aj13-black-cat", "AJ13 麦芽": "aj13-wheat", "AJ13 篮球场紫": "aj13-court-purple", "AJ13 黑灰": "aj13-black-flint", "AJ13 火石灰": "aj13-flint-grey", "AJ13 季后赛": "aj13-playoffs", "AJ13 幸运绿": "aj13-lucky-green", "AJ13 岛屿绿": "aj13-island-green", "AJ13 黑曜石": "aj13-obsidian", "AJ13 反光银": "aj13-reflective-silver", "AJ13 沙丘红": "aj13-dune-red", "AJ13 黑北卡": "aj13-black-university-blue", "AJ13 狼灰": "aj13-wolf-grey", "AJ13 白红": "aj13-white-university-red", "AJ13 白藏青": "aj13-white-midnight-navy", "AJ13 Low 黑红": "aj13-low-bred", "AJ1 小闪电": "aj1-game-royal", "AJ2 A Ma Maniere": "aj2-a-ma-maniere-airness", "AJ5 斗牛": "aj5-raging-bull-toro-bravo", "AJ7 奥运": "aj7-olympic", "AJ7 猛龙": "aj7-raptors", "AJ7 法国蓝": "aj7-french-blue", "AJ7 大巴黎": "aj7-paris-saint-germain", "AJ8 三连冠": "aj8-three-peat", "AJ8 酷灰": "aj8-cool-grey", "AJ8 南海岸": "aj8-south-beach", "AJ8 黑水泥": "aj8-black-cement", "AJ8 太阳": "aj8-phoenix-suns", "AJ9 北卡蓝": "aj9-university-blue", "AJ9 大学金": "aj9-university-gold", "AJ9 辣椒红": "aj9-chile-red", "AJ9 冰蓝": "aj9-powder-blue", "AJ10 钢铁灰": "aj10-steel", "AJ10 水泥灰": "aj10-cement", "AJ10 影子": "aj10-shadow", "AJ10 双五": "aj10-double-nickel", "AJ10 I'm Back": "aj10-im-back", "AJ10 林地迷彩": "aj10-woodland-camo", "AJ10 冰蓝": "aj10-ice-blue", "AJ11 白金 DMP": "aj11-dmp-gratitude", "AJ7 奥运 Alternate": "aj7-tinker-alternate", "AJ1 Low 芝加哥": "aj1low-low-og-chicago-2025", "AJ1 Low 黑红脚趾": "aj1low-low-bred-toe", "AJ1 Mid 禁穿 Bred": "aj1mid-mid-banned-2020", "AJ1 Mid 烟灰": "aj1mid-mid-light-smoke-grey-anthracite", "AJ14 最后一投": "aj14-retro-last-shot-2018", "AJ14 黑脚趾": "aj14-retro-black-toe-2014", "AJ15 隐形": "aj15-retro-stealth-2017", "AJ15 黑曜石": "aj15-retro-obsidian", "AJ16 藏青": "aj16-retro-midnight-navy-2016", "AJ16 CEO": "aj16-retro-ceo", "AJ17 闪电": "aj17-retro-low-all-star-lightning-2024", "AJ17 SoleFly 闪电": "aj17-retro-low-solefly-alternate-lightning", "AJ18 黑皇家蓝": "aj18-retro-black-sport-royal", "AJ19 火石灰": "aj19-retro-white-flint-grey", "AJ20 镭射": "aj20-retro-30th-anniversary-laser", "AJ20 隐形": "aj20-retro-stealth-2015", "AJ21 火石灰": "aj21-og-flint-grey", "AJ22 Omega": "aj22-og-omega", "AJ22 白红": "aj22-og-white-varsity-red", "AJ23 芝加哥": "aj23-chicago", "AJ24 黑白": "aj24-air-jordan-2009-black-white", "AJ25 黑红": "aj25-air-jordan-2010-black-varsity-red", "AJ26 全明星": "aj26-air-jordan-2011-all-star-white-royal", "AJ26 红白": "aj26-air-jordan-2011-team-red-white", "AJ27 北卡蓝": "aj27-air-jordan-2012-unc", "AJ28 绿迷彩": "aj28-xx8-green-camo", "AJ28 蓝迷彩": "aj28-xx8-blue-camo", "AJ29 体育红": "aj29-xx9-gym-red", "AJ30 黑猫": "aj30-xxx-black-cat", "AJ31 禁穿 Banned": "aj31-xxx1-banned", "AJ31 黑脚趾": "aj31-xxx1-black-toe", "AJ32 法拉利红": "aj32-xxxii-rosso-corsa", "AJ33 全黑": "aj33-xxxiii-blackout", "AJ34 日食": "aj34-xxxiv-eclipse", "AJ35 重心": "aj35-xxxv-center-of-gravity", "AJ36 虎年": "aj36-36-year-of-the-tiger", "AJ37 兔八哥": "aj37-37-hare", "AJ38 基本功": "aj38-38-fundamentals-clear-sole", "AJ39 太阳 Sol": "aj39-39-sol", "AJ40 芝加哥": "aj40-40-chicago", "AJ40 The Classic": "aj40-40-the-classic", "AJ41 红宝石 Ruby": "aj41-41-university-red", "AJ12 出租车": "aj12-black-taxi"};
-Object.entries(LEGACY_NAMES).forEach(([a,f]) => { if(!OFFICIAL[a]) OFFICIAL[a] = `official/${f}.webp`; });
+/* 旧版配色名 → 官方图，已保存的鞋保留原名仍能显示官方图 */
+const LEGACY = /*LEGACY*/{"AJ1 芝加哥 Chicago":"official/aj1-chicago.webp","AJ1 禁穿 Banned":"official/aj1-bred-banned.webp","AJ1 黑脚趾 Black Toe":"official/aj1-black-toe.webp","AJ1 皇家蓝 Royal Reimagined":"official/aj1-royal.webp","AJ1 北卡蓝 University Blue":"official/aj1-university-blue.webp","AJ1 影子灰 Shadow":"official/aj1-shadow.webp","AJ1 Low OG Black Dark Powder Blue":"official/aj1-low-og-unc.webp","AJ1 倒钩 Travis Scott Mocha":"official/aj1-travis-scott.webp","AJ1 黑曜石 Obsidian":"official/aj1-obsidian.webp","AJ1 摩卡 Dark Mocha":"official/aj1-dark-mocha.webp","AJ1 扣碎 Shattered Backboard":"official/aj1-shattered-backboard.webp","AJ1 Black & Metallic Gold & White":"official/aj1-black-metallic-gold.webp","AJ1 Black/Pine Green":"official/aj1-pine-green.webp","AJ1 Court Purple":"official/aj1-court-purple.webp","AJ1 Light Smoke Grey":"official/aj1-light-smoke-grey.webp","AJ1 黑红脚趾 Bred Toe":"official/aj1-bred-toe.webp","AJ1 Hyper Royal":"official/aj1-hyper-royal.webp","AJ1 Midnight Navy":"official/aj1-midnight-navy.webp","AJ1 Electro Orange":"official/aj1-electro-orange.webp","AJ1 小闪电 Game Royal":"official/aj1-game-royal.webp","AJ2 Chicago":"official/aj2-chicago.webp","AJ2 Low University Blue":"official/aj2-low-unc.webp","AJ2 Black Cement":"official/aj2-black-cement.webp","AJ2 Fire Red":"official/aj2-fire-red.webp","AJ2 Lucky Green":"official/aj2-lucky-green.webp","AJ2 White and Cement Grey":"official/aj2-white-cement.webp","AJ2 x UNION Grey Fog":"official/aj2-union-grey-fog.webp","AJ2 Low Python":"official/aj2-low-python.webp","AJ2 Low TITAN":"official/aj2-low-titan.webp","AJ2 J Balvin":"official/aj2-j-balvin.webp","AJ2 Low x Off-White White and Varsity Red":"official/aj2-off-white-low-white-red.webp","AJ2 Low x Off-White Black and Varsity Royal":"official/aj2-off-white-low-black-royal.webp","AJ2 Low Melon Tint":"official/aj2-low-melon-tint.webp","AJ2 Low Cherrywood":"official/aj2-low-cherrywood.webp","AJ2 A Ma Maniére Airness":"official/aj2-a-ma-maniere-airness.webp","AJ3 白水泥 White Cement Reimagined":"official/aj3-white-cement-reimagined.webp","AJ3 黑水泥 Black Cement":"official/aj3-black-cement.webp","AJ3 Fire Red":"official/aj3-fire-red.webp","AJ3 True Blue":"official/aj3-true-blue.webp","AJ3 黑猫 Black Cat":"official/aj3-black-cat.webp","AJ3 Fear":"official/aj3-fear.webp","AJ3 Cardinal Red":"official/aj3-cardinal-red.webp","AJ3 Racer Blue":"official/aj3-racer-blue.webp","AJ3 Medium Olive":"official/aj3-medium-olive.webp","AJ3 Hall of Fame":"official/aj3-hall-of-fame.webp","AJ3 Valor Blue":"official/aj3-valour-blue.webp","AJ3 Seoul":"official/aj3-seoul.webp","AJ3 Tinker":"official/aj3-tinker.webp","AJ3 Archaeo Brown":"official/aj3-archaeo-brown.webp","AJ3 Cement Grey":"official/aj3-cement-grey.webp","AJ3 White and Silver":"official/aj3-white-and-silver.webp","AJ3 Black and Hyper Jade":"official/aj3-black-hyper-jade.webp","AJ3 Rare Air":"official/aj3-rare-air.webp","AJ4 白水泥 White Cement":"official/aj4-white-cement.webp","AJ4 黑猫 Black Cat":"official/aj4-black-cat.webp","AJ4 Bred Reimagined":"official/aj4-bred-reimagined.webp","AJ4 Red Cement":"official/aj4-red-cement.webp","AJ4 Craft Olive":"official/aj4-craft-medium-olive.webp","AJ4 Metallic Purple":"official/aj4-metallic-purple.webp","AJ4 Fire Red":"official/aj4-fire-red.webp","AJ4 Military Black":"official/aj4-military-black.webp","AJ4 雷神 Thunder":"official/aj4-thunder.webp","AJ4 红雷神 Red Thunder":"official/aj4-red-thunder.webp","AJ4 University Blue":"official/aj4-university-blue.webp","AJ4 Tech White":"official/aj4-white-oreo.webp","AJ4 Cool Grey":"official/aj4-cool-grey.webp","AJ4 Midnight Navy":"official/aj4-midnight-navy.webp","AJ4 Nike SB Pine Green":"official/aj4-sb-pine-green.webp","AJ4 Oxidised Green":"official/aj4-oxidized-green.webp","AJ4 Travis Scott Cactus Jack":"official/aj4-travis-scott-cactus-jack.webp","AJ4 SE Wet Cement":"official/aj4-wet-cement.webp","AJ4 Industrial Blue":"official/aj4-industrial-blue.webp","AJ5 葡萄 Grape":"official/aj5-grape.webp","AJ5 Fire Red":"official/aj5-fire-red.webp","AJ5 奥利奥 Moonlight":"official/aj5-oreo.webp","AJ5 Reimagined":"official/aj5-black-metallic-reimagined.webp","AJ5 OG White and Metallic Silver":"official/aj5-white-metallic-silver.webp","AJ5 Burgundy":"official/aj5-burgundy.webp","AJ5 University Blue":"official/aj5-university-blue.webp","AJ5 绿豆 Green Bean":"official/aj5-green-bean.webp","AJ5 Anthracite":"official/aj5-anthracite.webp","AJ5 Purple Grape":"official/aj5-purple-grape.webp","AJ5 Aqua":"official/aj5-aqua.webp","AJ5 Racer Blue":"official/aj5-racer-blue.webp","AJ5 What The":"official/aj5-what-the.webp","AJ5 Olive":"official/aj5-olive.webp","AJ5 Island Green":"official/aj5-island-green.webp","AJ5 White and Black":"official/aj5-white-and-black.webp","AJ5 Raging Bull":"official/aj5-raging-bull-toro-bravo.webp","AJ6 Black Infrared":"official/aj6-black-infrared.webp","AJ6 Carmine":"official/aj6-carmine.webp","AJ6 White and Midnight Navy":"official/aj6-olympic.webp","AJ6 Infrared Salesman":"official/aj6-infrared-salesman.webp","AJ6 Travis Scott":"official/aj6-travis-scott.webp","AJ6 Toro Bravo":"official/aj6-toro-bravo.webp","AJ6 Cool Grey":"official/aj6-cool-grey.webp","AJ6 Black and White":"official/aj6-black-and-white.webp","AJ6 White and Black":"official/aj6-white-and-black.webp","AJ6 Aqua":"official/aj6-aqua.webp","AJ6 Maroon":"official/aj6-maroon.webp","AJ6 Gatorade Pine Green":"official/aj6-gatorade.webp","AJ6 Yellow Ochre":"official/aj6-yellow-ochre.webp","AJ6 x PSG Metallic Silver":"official/aj6-paris-saint-germain.webp","AJ6 Chinese New Year":"official/aj6-chinese-new-year.webp","AJ7 Cardinal":"official/aj7-cardinal.webp","AJ7 Bright Concord":"official/aj7-bright-concord.webp","AJ7 Olive":"official/aj7-olive.webp","AJ7 Black Gloss":"official/aj7-black-gloss.webp","AJ7 x Trophy Room True Red and Obsidian":"official/aj7-trophy-room.webp","AJ7 Neutral Indigo and Bright Crimson":"official/aj7-neutral-indigo.webp","AJ7 兔八哥 Hare":"official/aj7-hare.webp","AJ7 Citrus":"official/aj7-citrus.webp","AJ7 Bordeaux":"official/aj7-bordeaux.webp","AJ7 Flint":"official/aj7-flint.webp","AJ7 Olympic":"official/aj7-olympic.webp","AJ7 Raptors":"official/aj7-raptors.webp","AJ7 French Blue":"official/aj7-french-blue.webp","AJ7 Paris Saint-Germain":"official/aj7-paris-saint-germain.webp","AJ7 Olympic Tinker Alternate":"official/aj7-tinker-alternate.webp","AJ8 Playoffs":"official/aj8-playoffs.webp","AJ8 Aqua":"official/aj8-aqua.webp","AJ8 Confetti":"official/aj8-confetti.webp","AJ8 OVO Black & Metallic Gold":"official/aj8-ovo-black.webp","AJ8 OVO White & Metallic Gold":"official/aj8-ovo-white.webp","AJ8 White and True Red":"official/aj8-white-true-red.webp","AJ8 Championship Trophy":"official/aj8-championship-trophy.webp","AJ8 Chrome":"official/aj8-chrome.webp","AJ8 x SoleFly Mi Casa es Su Casa":"official/aj8-solefly.webp","AJ8 兔八哥 Bugs Bunny":"official/aj8-bugs-bunny.webp","AJ8 Three Peat":"official/aj8-three-peat.webp","AJ8 Cool Grey":"official/aj8-cool-grey.webp","AJ8 South Beach":"official/aj8-south-beach.webp","AJ8 Black Cement":"official/aj8-black-cement.webp","AJ8 Phoenix Suns":"official/aj8-phoenix-suns.webp","AJ9 Cool Grey":"official/aj9-cool-grey.webp","AJ9 OG White & Black":"official/aj9-og-white-black.webp","AJ9 Anthracite":"official/aj9-anthracite.webp","AJ9 Olive":"official/aj9-olive.webp","AJ9 Light Olive":"official/aj9-light-olive.webp","AJ9 Melo":"official/aj9-melo.webp","AJ9 Statue":"official/aj9-statue.webp","AJ9 Flint Grey and French Blue":"official/aj9-flint-grey-french-blue.webp","AJ9 Black & University Red":"official/aj9-black-university-red.webp","AJ9 Boot Black and Gum Light Brown":"official/aj9-boot-black-gum.webp","AJ9 Black and Particle Grey":"official/aj9-particle-grey.webp","AJ9 University Blue":"official/aj9-university-blue.webp","AJ9 University Gold":"official/aj9-university-gold.webp","AJ9 Chile Red":"official/aj9-chile-red.webp","AJ9 Powder Blue":"official/aj9-powder-blue.webp","AJ10 Charred Grey and Black":"official/aj10-charred-grey.webp","AJ10 Rio":"official/aj10-rio.webp","AJ10 OVO Black":"official/aj10-ovo-black.webp","AJ10 Bulls Over Broadway":"official/aj10-bulls-over-broadway.webp","AJ10 SB Multi-Color":"official/aj10-multi-color.webp","AJ10 Chicago Bulls":"official/aj10-chicago.webp","AJ10 Orlando":"official/aj10-orlando.webp","AJ10 Seattle":"official/aj10-seattle.webp","AJ10 Steel":"official/aj10-steel.webp","AJ10 Light Smoke Grey":"official/aj10-cement.webp","AJ10 Shadow":"official/aj10-shadow.webp","AJ10 Double Nickel":"official/aj10-double-nickel.webp","AJ10 I'm Back":"official/aj10-im-back.webp","AJ10 Woodland Camo":"official/aj10-woodland-camo.webp","AJ10 Ice Blue":"official/aj10-ice-blue.webp","AJ11 康扣 Concord":"official/aj11-concord.webp","AJ11 大魔王 Black/Red":"official/aj11-bred.webp","AJ11 伽马蓝 Gamma":"official/aj11-gamma-blue.webp","AJ11 传奇蓝 Legend Blue":"official/aj11-legend-blue.webp","AJ11 72-10":"official/aj11-72-10.webp","AJ11 酷灰 Cool Grey":"official/aj11-cool-grey.webp","AJ11 太空大灌篮 Black & Concord-White":"official/aj11-space-jam.webp","AJ11 樱桃红 Varsity Red":"official/aj11-cherry.webp","AJ11 Midnight Navy":"official/aj11-midnight-navy.webp","AJ11 Low Bred":"official/aj11-low-bred.webp","AJ11 Low Cement Grey":"official/aj11-low-cement-grey.webp","AJ11 Low University Blue":"official/aj11-low-university-blue.webp","AJ11 Low Cool Grey":"official/aj11-low-cool-grey.webp","AJ11 Low White & Metallic Gold":"official/aj11-low-white-metallic-gold.webp","AJ11 Low Diffused Blue":"official/aj11-low-diffused-blue.webp","AJ11 DMP Gratitude":"official/aj11-dmp-gratitude.webp","AJ12 金扣 Taxi":"official/aj12-taxi.webp","AJ12 流感 Flu Game":"official/aj12-flu-game.webp","AJ12 Black Taxi":"official/aj12-black-taxi.webp","AJ12 French Blue":"official/aj12-french-blue.webp","AJ12 Playoffs":"official/aj12-playoffs.webp","AJ12 Cherry":"official/aj12-cherry.webp","AJ12 Indigo":"official/aj12-indigo.webp","AJ12 University Gold":"official/aj12-university-gold.webp","AJ12 Wings":"official/aj12-wings.webp","AJ12 Deep Royal Blue":"official/aj12-deep-royal-blue.webp","AJ12 Red Metallic":"official/aj12-red-metallic.webp","AJ12 Wool Dark Grey & Black":"official/aj12-wool-dark-grey.webp","AJ12 White & Game Royal":"official/aj12-white-game-royal.webp","AJ12 CNY":"official/aj12-cny-2017.webp","AJ13 熊猫 He Got Game":"official/aj13-he-got-game.webp","AJ13 黑猫 Black Cat":"official/aj13-black-cat.webp","AJ13 Wheat":"official/aj13-wheat.webp","AJ13 Court Purple":"official/aj13-court-purple.webp","AJ13 Black Flint":"official/aj13-black-flint.webp","AJ13 Flint Grey":"official/aj13-flint-grey.webp","AJ13 Playoffs":"official/aj13-playoffs.webp","AJ13 Lucky Green":"official/aj13-lucky-green.webp","AJ13 Island Green":"official/aj13-island-green.webp","AJ13 Obsidian":"official/aj13-obsidian.webp","AJ13 Reflective Silver":"official/aj13-reflective-silver.webp","AJ13 Dune Red":"official/aj13-dune-red.webp","AJ13 Black and University Blue":"official/aj13-black-university-blue.webp","AJ13 Wolf Grey":"official/aj13-wolf-grey.webp","AJ13 White and University Red":"official/aj13-white-university-red.webp","AJ13 White and Midnight Navy":"official/aj13-white-midnight-navy.webp","AJ13 Low Bred":"official/aj13-low-bred.webp","AJ1 Low OG Chicago":"official/aj1low-low-og-chicago-2025.webp","AJ1 Low Bred Toe":"official/aj1low-low-bred-toe.webp","AJ1 Mid Banned":"official/aj1mid-mid-banned-2020.webp","AJ1 Mid Light Smoke Grey Anthracite":"official/aj1mid-mid-light-smoke-grey-anthracite.webp","AJ14 Last Shot":"official/aj14-retro-last-shot-2018.webp","AJ14 Black Toe":"official/aj14-retro-black-toe-2014.webp","AJ15 Stealth":"official/aj15-retro-stealth-2017.webp","AJ15 Obsidian":"official/aj15-retro-obsidian.webp","AJ16 Midnight Navy":"official/aj16-retro-midnight-navy-2016.webp","AJ16 CEO":"official/aj16-retro-ceo.webp","AJ17 Low All-Star Lightning":"official/aj17-retro-low-all-star-lightning-2024.webp","AJ17 Low SoleFly Alternate Lightning":"official/aj17-retro-low-solefly-alternate-lightning.webp","AJ18 Black Sport Royal":"official/aj18-retro-black-sport-royal.webp","AJ19 White Flint Grey":"official/aj19-retro-white-flint-grey.webp","AJ20 30th Anniversary Laser":"official/aj20-retro-30th-anniversary-laser.webp","AJ20 Stealth":"official/aj20-retro-stealth-2015.webp","AJ21 OG Flint Grey":"official/aj21-og-flint-grey.webp","AJ22 OG Omega":"official/aj22-og-omega.webp","AJ22 OG White Varsity Red":"official/aj22-og-white-varsity-red.webp","AJ23 Jordan 23 Chicago":"official/aj23-chicago.webp","AJ24 2009 Black White":"official/aj24-air-jordan-2009-black-white.webp","AJ25 2010 Black Varsity Red":"official/aj25-air-jordan-2010-black-varsity-red.webp","AJ26 2011 All-Star White Royal":"official/aj26-air-jordan-2011-all-star-white-royal.webp","AJ26 2011 Team Red White":"official/aj26-air-jordan-2011-team-red-white.webp","AJ27 2012 UNC":"official/aj27-air-jordan-2012-unc.webp","AJ28 XX8 Green Camo":"official/aj28-xx8-green-camo.webp","AJ28 XX8 Blue Camo":"official/aj28-xx8-blue-camo.webp","AJ29 XX9 Gym Red":"official/aj29-xx9-gym-red.webp","AJ30 XXX Black Cat":"official/aj30-xxx-black-cat.webp","AJ31 XXX1 Banned":"official/aj31-xxx1-banned.webp","AJ31 XXX1 Black Toe":"official/aj31-xxx1-black-toe.webp","AJ32 XXXII Rosso Corsa":"official/aj32-xxxii-rosso-corsa.webp","AJ33 XXXIII Blackout":"official/aj33-xxxiii-blackout.webp","AJ34 XXXIV Eclipse":"official/aj34-xxxiv-eclipse.webp","AJ35 XXXV Center of Gravity":"official/aj35-xxxv-center-of-gravity.webp","AJ36 Year of the Tiger":"official/aj36-36-year-of-the-tiger.webp","AJ37 Hare":"official/aj37-37-hare.webp","AJ38 Fundamentals":"official/aj38-38-fundamentals-clear-sole.webp","AJ39 Sol":"official/aj39-39-sol.webp","AJ40 Chicago":"official/aj40-40-chicago.webp","AJ40 The Classic":"official/aj40-40-the-classic.webp","AJ41 University Red":"official/aj41-41-university-red.webp","AJ1 芝加哥":"official/aj1-chicago.webp","AJ1 禁穿 Bred":"official/aj1-bred-banned.webp","AJ1 黑脚趾":"official/aj1-black-toe.webp","AJ1 皇家蓝 Royal":"official/aj1-royal.webp","AJ1 北卡蓝":"official/aj1-university-blue.webp","AJ1 影子灰":"official/aj1-shadow.webp","AJ1 Low 北卡":"official/aj1-low-og-unc.webp","AJ1 倒钩":"official/aj1-travis-scott.webp","AJ1 黑曜石":"official/aj1-obsidian.webp","AJ1 摩卡":"official/aj1-dark-mocha.webp","AJ1 扣碎":"official/aj1-shattered-backboard.webp","AJ1 黑金":"official/aj1-black-metallic-gold.webp","AJ1 黑绿":"official/aj1-pine-green.webp","AJ1 黑紫":"official/aj1-court-purple.webp","AJ1 烟灰":"official/aj1-light-smoke-grey.webp","AJ1 北卡脚趾":"official/aj1-unc-toe.webp","AJ1 黑红脚趾":"official/aj1-bred-toe.webp","AJ1 冰蓝":"official/aj1-hyper-royal.webp","AJ1 藏青":"official/aj1-midnight-navy.webp","AJ1 电光橙":"official/aj1-electro-orange.webp","AJ2 白红":"official/aj2-white-varsity-red.webp","AJ2 芝加哥":"official/aj2-chicago.webp","AJ2 白蓝":"official/aj2-low-unc.webp","AJ2 黑水泥":"official/aj2-black-cement.webp","AJ2 火焰红":"official/aj2-fire-red.webp","AJ2 幸运绿":"official/aj2-lucky-green.webp","AJ2 白水泥":"official/aj2-white-cement.webp","AJ2 雾灰 Union":"official/aj2-union-grey-fog.webp","AJ2 蟒纹":"official/aj2-low-python.webp","AJ2 Titan":"official/aj2-low-titan.webp","AJ2 OW 白红":"official/aj2-off-white-low-white-red.webp","AJ2 OW 黑蓝":"official/aj2-off-white-low-black-royal.webp","AJ2 蜜瓜":"official/aj2-low-melon-tint.webp","AJ2 樱桃木":"official/aj2-low-cherrywood.webp","AJ3 白水泥":"official/aj3-white-cement-reimagined.webp","AJ3 黑水泥":"official/aj3-black-cement.webp","AJ3 火焰红":"official/aj3-fire-red.webp","AJ3 真青 True Blue":"official/aj3-true-blue.webp","AJ3 黑猫":"official/aj3-black-cat.webp","AJ3 恐惧":"official/aj3-fear.webp","AJ3 红雀":"official/aj3-cardinal-red.webp","AJ3 赛车蓝":"official/aj3-racer-blue.webp","AJ3 橄榄":"official/aj3-medium-olive.webp","AJ3 名人堂":"official/aj3-hall-of-fame.webp","AJ3 勇气蓝":"official/aj3-valour-blue.webp","AJ3 首尔":"official/aj3-seoul.webp","AJ3 橡木棕":"official/aj3-archaeo-brown.webp","AJ3 水泥灰":"official/aj3-cement-grey.webp","AJ3 白银":"official/aj3-white-and-silver.webp","AJ3 翡翠":"official/aj3-black-hyper-jade.webp","AJ4 白水泥":"official/aj4-white-cement.webp","AJ4 黑猫":"official/aj4-black-cat.webp","AJ4 公牛":"official/aj4-bred-reimagined.webp","AJ4 红水泥":"official/aj4-red-cement.webp","AJ4 军绿":"official/aj4-craft-medium-olive.webp","AJ4 紫葡萄":"official/aj4-metallic-purple.webp","AJ4 火焰红":"official/aj4-fire-red.webp","AJ4 军事黑":"official/aj4-military-black.webp","AJ4 雷神":"official/aj4-thunder.webp","AJ4 红雷神":"official/aj4-red-thunder.webp","AJ4 北卡蓝":"official/aj4-university-blue.webp","AJ4 白奥利奥":"official/aj4-white-oreo.webp","AJ4 酷灰":"official/aj4-cool-grey.webp","AJ4 藏青":"official/aj4-midnight-navy.webp","AJ4 SB 松绿":"official/aj4-sb-pine-green.webp","AJ4 氧化绿":"official/aj4-oxidized-green.webp","AJ4 TS 仙人掌":"official/aj4-travis-scott-cactus-jack.webp","AJ4 湿水泥":"official/aj4-wet-cement.webp","AJ4 工业蓝":"official/aj4-industrial-blue.webp","AJ5 葡萄":"official/aj5-grape.webp","AJ5 火焰红":"official/aj5-fire-red.webp","AJ5 奥利奥":"official/aj5-oreo.webp","AJ5 黑金属":"official/aj5-black-metallic-reimagined.webp","AJ5 白金属":"official/aj5-white-metallic-silver.webp","AJ5 酒红":"official/aj5-burgundy.webp","AJ5 北卡蓝":"official/aj5-university-blue.webp","AJ5 绿豆":"official/aj5-green-bean.webp","AJ5 碳灰":"official/aj5-anthracite.webp","AJ5 紫葡萄":"official/aj5-purple-grape.webp","AJ5 水蓝":"official/aj5-aqua.webp","AJ5 赛车蓝":"official/aj5-racer-blue.webp","AJ5 鸳鸯":"official/aj5-what-the.webp","AJ5 橄榄":"official/aj5-olive.webp","AJ5 岛屿绿":"official/aj5-island-green.webp","AJ5 白黑":"official/aj5-white-and-black.webp","AJ6 黑红":"official/aj6-black-infrared.webp","AJ6 白红":"official/aj6-carmine.webp","AJ6 奥运":"official/aj6-olympic.webp","AJ6 红外线":"official/aj6-infrared-salesman.webp","AJ6 TS 橄榄":"official/aj6-travis-scott.webp","AJ6 斗牛":"official/aj6-toro-bravo.webp","AJ6 酷灰":"official/aj6-cool-grey.webp","AJ6 黑白":"official/aj6-black-and-white.webp","AJ6 白黑":"official/aj6-white-and-black.webp","AJ6 水蓝":"official/aj6-aqua.webp","AJ6 酒红":"official/aj6-maroon.webp","AJ6 佳得乐":"official/aj6-gatorade.webp","AJ6 赭黄":"official/aj6-yellow-ochre.webp","AJ6 大巴黎":"official/aj6-paris-saint-germain.webp","AJ6 中国年":"official/aj6-chinese-new-year.webp","AJ7 红雀":"official/aj7-cardinal.webp","AJ7 亮紫":"official/aj7-bright-concord.webp","AJ7 橄榄":"official/aj7-olive.webp","AJ7 黑亮":"official/aj7-black-gloss.webp","AJ7 Trophy Room":"official/aj7-trophy-room.webp","AJ7 靛蓝":"official/aj7-neutral-indigo.webp","AJ7 兔八哥":"official/aj7-hare.webp","AJ7 柑橘":"official/aj7-citrus.webp","AJ7 波尔多":"official/aj7-bordeaux.webp","AJ7 火石":"official/aj7-flint.webp","AJ8 季后赛":"official/aj8-playoffs.webp","AJ8 水蓝":"official/aj8-aqua.webp","AJ8 五彩":"official/aj8-confetti.webp","AJ8 OVO 黑":"official/aj8-ovo-black.webp","AJ8 OVO 白":"official/aj8-ovo-white.webp","AJ8 白红":"official/aj8-white-true-red.webp","AJ8 冠军杯":"official/aj8-championship-trophy.webp","AJ8 铬黑":"official/aj8-chrome.webp","AJ8 SoleFly":"official/aj8-solefly.webp","AJ8 兔八哥":"official/aj8-bugs-bunny.webp","AJ9 酷灰":"official/aj9-cool-grey.webp","AJ9 白黑":"official/aj9-og-white-black.webp","AJ9 碳灰":"official/aj9-anthracite.webp","AJ9 橄榄":"official/aj9-olive.webp","AJ9 浅橄榄":"official/aj9-light-olive.webp","AJ9 甜瓜":"official/aj9-melo.webp","AJ9 雕像":"official/aj9-statue.webp","AJ9 法国蓝":"official/aj9-flint-grey-french-blue.webp","AJ9 黑红":"official/aj9-black-university-red.webp","AJ9 靴子":"official/aj9-boot-black-gum.webp","AJ9 黑颗粒灰":"official/aj9-particle-grey.webp","AJ10 炭灰":"official/aj10-charred-grey.webp","AJ10 里约":"official/aj10-rio.webp","AJ10 OVO 黑":"official/aj10-ovo-black.webp","AJ10 百老汇":"official/aj10-bulls-over-broadway.webp","AJ10 多彩":"official/aj10-multi-color.webp","AJ10 芝加哥":"official/aj10-chicago.webp","AJ10 奥兰多":"official/aj10-orlando.webp","AJ10 西雅图":"official/aj10-seattle.webp","AJ11 康扣":"official/aj11-concord.webp","AJ11 大魔王":"official/aj11-bred.webp","AJ11 伽马蓝":"official/aj11-gamma-blue.webp","AJ11 传奇蓝":"official/aj11-legend-blue.webp","AJ11 酷灰":"official/aj11-cool-grey.webp","AJ11 太空大灌篮":"official/aj11-space-jam.webp","AJ11 樱桃红":"official/aj11-cherry.webp","AJ11 藏青":"official/aj11-midnight-navy.webp","AJ11 Low 黑红":"official/aj11-low-bred.webp","AJ11 Low 水泥灰":"official/aj11-low-cement-grey.webp","AJ11 Low 北卡蓝":"official/aj11-low-university-blue.webp","AJ11 Low 酷灰":"official/aj11-low-cool-grey.webp","AJ11 Low 白金":"official/aj11-low-white-metallic-gold.webp","AJ11 Low 漫游蓝":"official/aj11-low-diffused-blue.webp","AJ12 金扣":"official/aj12-taxi.webp","AJ12 流感":"official/aj12-flu-game.webp","AJ12 出租车 黑":"official/aj12-black-taxi.webp","AJ12 法国蓝":"official/aj12-french-blue.webp","AJ12 季后赛":"official/aj12-playoffs.webp","AJ12 樱桃红":"official/aj12-cherry.webp","AJ12 靛蓝":"official/aj12-indigo.webp","AJ12 大学金":"official/aj12-university-gold.webp","AJ12 黑红":"official/aj12-black-varsity-red.webp","AJ12 深皇家蓝":"official/aj12-deep-royal-blue.webp","AJ12 红金属":"official/aj12-red-metallic.webp","AJ12 羊毛灰":"official/aj12-wool-dark-grey.webp","AJ12 白皇家蓝":"official/aj12-white-game-royal.webp","AJ12 中国年":"official/aj12-cny-2017.webp","AJ13 熊猫":"official/aj13-he-got-game.webp","AJ13 黑猫":"official/aj13-black-cat.webp","AJ13 麦芽":"official/aj13-wheat.webp","AJ13 篮球场紫":"official/aj13-court-purple.webp","AJ13 黑灰":"official/aj13-black-flint.webp","AJ13 火石灰":"official/aj13-flint-grey.webp","AJ13 季后赛":"official/aj13-playoffs.webp","AJ13 幸运绿":"official/aj13-lucky-green.webp","AJ13 岛屿绿":"official/aj13-island-green.webp","AJ13 黑曜石":"official/aj13-obsidian.webp","AJ13 反光银":"official/aj13-reflective-silver.webp","AJ13 沙丘红":"official/aj13-dune-red.webp","AJ13 黑北卡":"official/aj13-black-university-blue.webp","AJ13 狼灰":"official/aj13-wolf-grey.webp","AJ13 白红":"official/aj13-white-university-red.webp","AJ13 白藏青":"official/aj13-white-midnight-navy.webp","AJ13 Low 黑红":"official/aj13-low-bred.webp","AJ1 小闪电":"official/aj1-game-royal.webp","AJ2 A Ma Maniere":"official/aj2-a-ma-maniere-airness.webp","AJ5 斗牛":"official/aj5-raging-bull-toro-bravo.webp","AJ7 奥运":"official/aj7-olympic.webp","AJ7 猛龙":"official/aj7-raptors.webp","AJ7 法国蓝":"official/aj7-french-blue.webp","AJ7 大巴黎":"official/aj7-paris-saint-germain.webp","AJ8 三连冠":"official/aj8-three-peat.webp","AJ8 酷灰":"official/aj8-cool-grey.webp","AJ8 南海岸":"official/aj8-south-beach.webp","AJ8 黑水泥":"official/aj8-black-cement.webp","AJ8 太阳":"official/aj8-phoenix-suns.webp","AJ9 北卡蓝":"official/aj9-university-blue.webp","AJ9 大学金":"official/aj9-university-gold.webp","AJ9 辣椒红":"official/aj9-chile-red.webp","AJ9 冰蓝":"official/aj9-powder-blue.webp","AJ10 钢铁灰":"official/aj10-steel.webp","AJ10 水泥灰":"official/aj10-cement.webp","AJ10 影子":"official/aj10-shadow.webp","AJ10 双五":"official/aj10-double-nickel.webp","AJ10 林地迷彩":"official/aj10-woodland-camo.webp","AJ10 冰蓝":"official/aj10-ice-blue.webp","AJ11 白金 DMP":"official/aj11-dmp-gratitude.webp","AJ7 奥运 Alternate":"official/aj7-tinker-alternate.webp","AJ1 Low 芝加哥":"official/aj1low-low-og-chicago-2025.webp","AJ1 Low 黑红脚趾":"official/aj1low-low-bred-toe.webp","AJ1 Mid 禁穿 Bred":"official/aj1mid-mid-banned-2020.webp","AJ1 Mid 烟灰":"official/aj1mid-mid-light-smoke-grey-anthracite.webp","AJ14 最后一投":"official/aj14-retro-last-shot-2018.webp","AJ14 黑脚趾":"official/aj14-retro-black-toe-2014.webp","AJ15 隐形":"official/aj15-retro-stealth-2017.webp","AJ15 黑曜石":"official/aj15-retro-obsidian.webp","AJ16 藏青":"official/aj16-retro-midnight-navy-2016.webp","AJ17 闪电":"official/aj17-retro-low-all-star-lightning-2024.webp","AJ17 SoleFly 闪电":"official/aj17-retro-low-solefly-alternate-lightning.webp","AJ18 黑皇家蓝":"official/aj18-retro-black-sport-royal.webp","AJ19 火石灰":"official/aj19-retro-white-flint-grey.webp","AJ20 镭射":"official/aj20-retro-30th-anniversary-laser.webp","AJ20 隐形":"official/aj20-retro-stealth-2015.webp","AJ21 火石灰":"official/aj21-og-flint-grey.webp","AJ22 Omega":"official/aj22-og-omega.webp","AJ22 白红":"official/aj22-og-white-varsity-red.webp","AJ23 芝加哥":"official/aj23-chicago.webp","AJ24 黑白":"official/aj24-air-jordan-2009-black-white.webp","AJ25 黑红":"official/aj25-air-jordan-2010-black-varsity-red.webp","AJ26 全明星":"official/aj26-air-jordan-2011-all-star-white-royal.webp","AJ26 红白":"official/aj26-air-jordan-2011-team-red-white.webp","AJ27 北卡蓝":"official/aj27-air-jordan-2012-unc.webp","AJ28 绿迷彩":"official/aj28-xx8-green-camo.webp","AJ28 蓝迷彩":"official/aj28-xx8-blue-camo.webp","AJ29 体育红":"official/aj29-xx9-gym-red.webp","AJ30 黑猫":"official/aj30-xxx-black-cat.webp","AJ31 禁穿 Banned":"official/aj31-xxx1-banned.webp","AJ31 黑脚趾":"official/aj31-xxx1-black-toe.webp","AJ32 法拉利红":"official/aj32-xxxii-rosso-corsa.webp","AJ33 全黑":"official/aj33-xxxiii-blackout.webp","AJ34 日食":"official/aj34-xxxiv-eclipse.webp","AJ35 重心":"official/aj35-xxxv-center-of-gravity.webp","AJ36 虎年":"official/aj36-36-year-of-the-tiger.webp","AJ37 兔八哥":"official/aj37-37-hare.webp","AJ38 基本功":"official/aj38-38-fundamentals-clear-sole.webp","AJ39 太阳 Sol":"official/aj39-39-sol.webp","AJ40 芝加哥":"official/aj40-40-chicago.webp","AJ41 红宝石 Ruby":"official/aj41-41-university-red.webp","AJ12 出租车":"official/aj12-black-taxi.webp","AJ1 北卡脚趾 (duplicate)":"official/aj1-unc-toe.webp","AJ2 白红 (duplicate)":"official/aj2-white-varsity-red.webp","AJ12 黑红 (duplicate)":"official/aj12-black-varsity-red.webp","(merged into AJ1 北卡蓝 University Blue)":"official/aj1-unc-toe.webp","(merged into AJ2 Fire Red)":"official/aj2-fire-red.webp","(merged into AJ12 流感 Flu Game)":"official/aj12-black-varsity-red.webp"};
 const offKey=n=>String(n||'').replace(/\s+/g,'').toLowerCase();
-const OFF_IDX=Object.fromEntries(Object.entries(OFFICIAL).map(([k,v])=>[offKey(k),v]));
+const OFF_IDX={};
+const addOff=(n,p)=>{ const k=offKey(n); if(!OFF_IDX[k]) OFF_IDX[k]=p; };
+Object.entries(LEGACY).forEach(([n,p])=>addOff(n,p));
 const offImg=n=>OFF_IDX[offKey(n)]||'';
+let CAT=null, catP=null;
+function loadCatalog(){
+  if(catP) return catP;
+  catP=fetch('catalog.json').then(r=>{ if(!r.ok) throw new Error(r.status); return r.json(); }).then(j=>{
+    CAT=j.series||{};
+    Object.entries(CAT).forEach(([k,v])=>v.forEach(z=>{ if(z[1]) addOff(`${k} ${z[0]}`, 'official/'+z[1]); }));
+    return CAT;
+  }).catch(e=>{ catP=null; throw e; });
+  return catP;
+}
+const catKey=sn=>CAT?Object.keys(CAT).find(k=>k.toUpperCase()===String(sn||'').trim().toUpperCase()):null;
+const catOf=sn=>{ const k=catKey(sn); return k?CAT[k]:[]; };
 const sil = () => '<svg><use href="#leaper"/></svg>';
 const stampSvg = () => '<svg viewBox="0 0 140 140"><use href="#stampSym"/></svg>';
 
@@ -701,6 +690,8 @@ const save = () => Store.persist();
 const cur = () => Store.s.series.find(x => x.id === Store.s.current) || Store.s.series[0];
 const shoesOf = sid => Store.s.shoes.filter(x => x.seriesId === sid);
 const shoe = id => Store.s.shoes.find(x => x.id === id);
+const glue = s => esc(s).replace(/(\S配色(?:（[^）]*）)?)$/,'<span class="nw">$1</span>');
+const shortNm = x => { const se=Store.s.series.find(z=>z.id===x.seriesId), p=se?se.name+' ':''; const n=String(x.name||''); return p && n.toUpperCase().startsWith(p.toUpperCase()) && n.length>p.length ? n.slice(p.length) : n; };
 const litSrc = x => Store.photo(x) || offImg(x.name) || '';
 const isOff = x => !Store.photo(x) && !!offImg(x.name);
 
@@ -728,8 +719,8 @@ function render(){
   const pct = list.length ? Math.round(ln/list.length*100) : 0;
   $('#hall').innerHTML = `<span>${esc(c.name)} 展厅</span><span class="bar"><i style="width:${pct}%"></i></span><span>${ln}/${list.length} 已点亮</span>`;
   let h = list.map((x,i) => cardHTML(x,i)).join('');
-  h += `<button class="card new" id="btnNewShoe" style="animation-delay:${Math.min(list.length,8)*30}ms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>录入新鞋</span></button>`;
-  if(!list.length) h += `<div class="empty-hint">这个展厅还空着<br>先留一个位置，等它到了再点亮</div>`;
+  h += `<button class="card new" id="btnNewShoe" style="animation-delay:${Math.min(list.length,8)*30}ms"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>点亮新配色</span></button>`;
+  if(!list.length) h += `<div class="empty-hint">这个展厅还空着<br>点上面的 + 选一个配色，直接点亮</div>`;
   $('#grid').classList.toggle('calm', !!justLit); // on light-up only the new card moves
   $('#grid').innerHTML = h;
   if(justLit) revealB($(`#grid .card.reveal[data-id="${justLit}"]`));
@@ -764,9 +755,9 @@ function revealB(card){
 }
 function cardHTML(x,i){
   const d = `style="animation-delay:${Math.min(i,8)*30}ms"`;
-  if(!x.lit) return `<div class="card unlit${offImg(x.name)?' has-img':''}" data-id="${x.id}" ${d}>${offImg(x.name)?`<div class="sil has-off">${sil()}</div><div class="offimg"><img src="${offImg(x.name)}" alt="" loading="lazy" decoding="async"></div>`:`<div class="sil">${sil()}</div>`}<span class="corner">待点亮</span><div class="tag"><div class="nm">${esc(x.name)}</div><div class="dt">----.--.--</div></div></div>`;
+  if(!x.lit) return `<div class="card unlit${offImg(x.name)?' has-img':''}" data-id="${x.id}" ${d}>${offImg(x.name)?`<div class="sil has-off">${sil()}</div><div class="offimg"><img src="${offImg(x.name)}" alt="" loading="lazy" decoding="async"></div>`:`<div class="sil">${sil()}</div>`}<span class="corner">待点亮</span><div class="tag"><div class="nm">${glue(shortNm(x))}</div><div class="dt">----.--.--</div></div></div>`;
   const cls = ['card','lit']; if(x.sailed) cls.push('sailed'); if(justLit===x.id) cls.push('reveal');
-  return `<div class="${cls.join(' ')}" data-id="${x.id}" ${justLit===x.id?'':d}><div class="sil">${sil()}</div><div class="ph${isOff(x)?' off':''}">${litSrc(x)?`<img src="${litSrc(x)}" alt="" decoding="async">`:''}</div><div class="grad"></div>${justLit===x.id?ghostHTML(x):''}${x.sailed?`<div class="mini-stamp">${stampSvg()}</div>`:''}<div class="tag"><div class="nm">${esc(x.name)}</div><div class="dt">${x.sailed?'已远航':''}${x.sailed&&x.date?' · ':''}${x.date?fmt(x.date):(x.sailed?'':'已点亮')}</div></div></div>`;
+  return `<div class="${cls.join(' ')}" data-id="${x.id}" ${justLit===x.id?'':d}><div class="sil">${sil()}</div><div class="ph${isOff(x)?' off':''}">${litSrc(x)?`<img src="${litSrc(x)}" alt="" decoding="async">`:''}</div><div class="grad"></div>${justLit===x.id?ghostHTML(x):''}${x.sailed?`<div class="mini-stamp">${stampSvg()}</div>`:''}<div class="tag"><div class="nm">${glue(shortNm(x))}</div><div class="dt">${x.sailed?'已远航':''}${x.sailed&&x.date?' · ':''}${x.date?fmt(x.date):(x.sailed?'':'已点亮')}</div></div></div>`;
 }
 
 /* ---------- toast & dialog ---------- */
@@ -815,30 +806,67 @@ function addSeriesSheet(){
   });
 }
 
-/* 2. 留白 */
-function addShoeSheet(){
-  const c=cur();
+/* 2. 点亮新配色：按系列列出全部官方配色，可搜索 */
+const CP_STEP=60;
+function colorPicker(opt){
+  const c=opt.series, choose=opt.mode==='choose';
   openSheet(`
-    <h2>录入新鞋</h2>
-    <p class="sub">先在 ${esc(c.name)} 展厅留一个位置，等它真正到你身边，再把它点亮</p>
-    ${(COLORWAYS[c.name.toUpperCase()]||[]).length?`<label class="label">经典配色</label><div class="chips" style="margin-top:0">${COLORWAYS[c.name.toUpperCase()].map(k=>{const full=`${c.name} ${k}`;return `<button class="chip" data-p="${esc(full)}">${esc(k)}</button>`;}).join('')}</div>`:''}
-    <label class="label">自定义配色</label>
-    <input class="field" id="inShoe" maxlength="60" placeholder="例如 ${esc(c.name)} + 官方配色名" value="${esc(c.name)} " autocomplete="off">
-    <button class="btn" id="okShoe">留白入柜</button>`, b=>{
-    const inp=b.querySelector('#inShoe'), ok=b.querySelector('#okShoe');
-    const sync=()=>{ ok.disabled=!inp.value.trim() || inp.value.trim()===c.name; b.querySelectorAll('.chip').forEach(z=>z.classList.toggle('on',z.dataset.p===inp.value.trim())); };
-    b.querySelectorAll('.chip').forEach(z=>z.onclick=()=>{ inp.value=z.dataset.p; sync(); });
+    <h2>${choose?'换一个配色':'点亮新配色'}</h2>
+    <p class="sub" id="cpSub">正在载入 ${esc(c.name)} 配色库</p>
+    <div class="cp-tools" id="cpTools">
+      <input class="field" id="cpQ" type="search" placeholder="搜索配色、英文名或货号" autocomplete="off" enterkeyhint="search">
+      <div class="cp-f" id="cpF"><button data-f="" class="on">全部</button><button data-f="g">常规</button><button data-f="c">联名</button><button data-f="w">女款</button></div>
+    </div>
+    <div class="cp-grid" id="cpG"></div>
+    <div class="cp-more" id="cpMore"></div>
+    <label class="label">没找到？自己填</label>
+    <input class="field" id="cpIn" maxlength="60" value="${esc(opt.name||c.name+' ')}" autocomplete="off">
+    <button class="btn" id="cpOk">${choose?'用这个名字':'用这个名字点亮'}</button>`, b=>{
+    const g=b.querySelector('#cpG'), q=b.querySelector('#cpQ'), sub=b.querySelector('#cpSub'), more=b.querySelector('#cpMore'), inp=b.querySelector('#cpIn'), ok=b.querySelector('#cpOk');
+    let all=[], list=[], shown=0, f='', io=null;
+    const sheet=$('#sheet');
+    const pick=name=>{ if(io) io.disconnect(); opt.onPick(name); };
+    const litN={}; shoesOf(c.id).forEach(x=>{ if(x.lit){ const k=offKey(x.name); litN[k]=(litN[k]||0)+1; } });
+    const tile=z=>{ const full=`${c.name} ${z[0]}`, n=litN[offKey(full)]||0;
+      return `<button class="cp-t${n?' lit':''}" data-n="${esc(full)}"><span class="im">${z[1]?`<img src="official/${z[1]}" alt="" loading="lazy" decoding="async">`:sil()}</span><b>${glue(z[0])}</b><i>${esc(z[2]||'')}${z[4].includes('w')?' · 女款':''}</i>${n?`<em>已点亮${n>1?' ×'+n:''}</em>`:(z[4].includes('u')?'<em class="u">即将发售</em>':'')}</button>`; };
+    const draw=()=>{
+      const from=shown, to=Math.min(list.length, shown+CP_STEP); const yk=z=>z[4].includes('u')?'u':String(z[3]||''); let s='', yr=from?yk(list[from-1]):null;
+      for(let i=from;i<to;i++){ const z=list[i], y=yk(z); if(y!==yr){ s+=`<div class="cp-yr">${y==='u'?'即将发售':y?y+' 年':'年份未知'}</div>`; yr=y; } s+=tile(z); }
+      g.insertAdjacentHTML('beforeend', s); shown=to;
+      more.textContent=shown<list.length?`继续下滑加载 · ${shown}/${list.length}`:(list.length?'':'没有匹配的配色，可以在下面自己填');
+    };
+    const apply=()=>{
+      const t=q.value.trim().toLowerCase().replace(/\s+/g,' '), t2=t.replace(/[\s-]/g,'');
+      list=all.filter(z=>(!f || (f==='g'?!z[4].includes('c'):z[4].includes(f))) && (!t || (z[0]+' '+(z[5]||'')+' '+(z[6]||'')).toLowerCase().includes(t) || String(z[2]||'').toLowerCase().replace(/-/g,'').includes(t2)));
+      g.innerHTML=''; shown=0; draw();
+    };
+    g.onclick=e=>{ const t=e.target.closest('.cp-t'); if(t) pick(t.dataset.n); };
+    b.querySelectorAll('#cpF button').forEach(x=>x.onclick=()=>{ f=x.dataset.f; b.querySelectorAll('#cpF button').forEach(y=>y.classList.toggle('on',y===x)); apply(); sheet.scrollTop=0; });
+    let qt; q.oninput=()=>{ clearTimeout(qt); qt=setTimeout(apply,120); };
+    q.onkeydown=e=>{ if(e.key==='Enter') q.blur(); };
+    const sync=()=>{ const v=inp.value.trim(); ok.disabled=!v || v.toUpperCase()===c.name.toUpperCase(); };
     sync(); inp.oninput=sync;
     inp.onkeydown=e=>{ if(e.key==='Enter' && !ok.disabled) ok.click(); };
-    ok.onclick=()=>{
-      const v=inp.value.trim(); if(!v) return;
-      if(commit(()=>Store.s.shoes.push({id:uid(),seriesId:c.id,name:v,lit:false,createdAt:Date.now()}))){ closeSheet(); render(); toast('已留白，等你来点亮'); }
-    };
+    ok.onclick=()=>{ const v=inp.value.trim(); if(v) pick(v); };
+    loadCatalog().then(()=>{
+      if(!sheet.contains(g)) return;
+      all=catOf(c.name).slice();
+      const nc=all.filter(z=>z[4].includes('c')).length;
+      sub.textContent=all.length?`${c.name} 共 ${all.length} 款官方配色${nc?`，联名 ${nc} 款`:''}。同一配色可以点亮多次`:`${c.name} 暂时没有收录配色，在下面写上配色名就能点亮`;
+      if(!all.length) b.querySelector('#cpTools').style.display='none';
+      apply();
+      io=new IntersectionObserver(es=>{ if(es[0].isIntersecting && shown<list.length) draw(); },{root:sheet,rootMargin:'600px'});
+      io.observe(more);
+    }).catch(()=>{ sub.textContent='配色库没加载出来，检查一下网络，或者在下面自己填配色名'; b.querySelector('#cpTools').style.display='none'; });
   });
+}
+function newColorway(){
+  const c=cur(); if(!c) return;
+  colorPicker({series:c, onPick:name=>{ closeSheet(); setTimeout(()=>startScan(null,{seriesId:c.id,name}),260); }});
 }
 
 /* 3. 仪式感点亮：扫描 */
-let scanTarget=null, scanTimers=[];
+let scanTarget=null, scanDraft=null, scanTimers=[];
 const LOG = [
   '初始化视觉模型 ......... 完成',
   '载入 Air Jordan 档案库 .. 完成',
@@ -847,12 +875,12 @@ const LOG = [
   '提取鞋面配色特征 ........ 完成',
   '比对历代鞋款 ............ 完成',
 ];
-function startScan(id){
-  const x=shoe(id); if(!x) return;
-  scanTarget=id; $('#toast').classList.remove('on');
+function startScan(id, draft){
+  const x=draft||shoe(id); if(!x) return;
+  scanTarget=id; scanDraft=draft||null; $('#toast').classList.remove('on');
   scanTimers.forEach(clearTimeout); scanTimers=[];
   const sc=$('#scan'), fr=$('#frame'), log=$('#log'), res=$('#result');
-  $('#scanId').textContent='#'+id.slice(-4).toUpperCase();
+  $('#scanId').textContent=id?'#'+id.slice(-4).toUpperCase():'#NEW';
   $('#resName').textContent=x.name;
   { const o=offImg(x.name); fr.querySelector('.tgt').innerHTML=o?`<img src="${o}" alt="">`:'<svg><use href="#leaper"/></svg>'; }
   log.innerHTML=''; res.classList.remove('on');
@@ -868,7 +896,7 @@ function startScan(id){
   const tick=now=>{
     const k=Math.min(1,(now-t0)/T);
     bar.style.width=(k*100)+'%'; pt.textContent=String(Math.floor(k*100)).padStart(3,'0')+'%';
-    if(k<1 && sc.classList.contains('on') && scanTarget===id) requestAnimationFrame(tick);
+    if(k<1 && sc.classList.contains('on') && scanTarget===id && scanDraft===(draft||null)) requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
   LOG.forEach((l,i)=>scanTimers.push(setTimeout(()=>{
@@ -883,8 +911,8 @@ function startScan(id){
   }, T));
 }
 function closeScan(){ scanTimers.forEach(clearTimeout); $('#scan').classList.remove('on'); setTimeout(()=>$('#result').classList.remove('on'),300); }
-$('#btnScanCancel').onclick=()=>{ closeScan(); scanTarget=null; };
-$('#btnUpload').onclick=()=>{ closeScan(); memorySheet({mode:'light', id:scanTarget}); };
+$('#btnScanCancel').onclick=()=>{ closeScan(); scanTarget=null; scanDraft=null; };
+$('#btnUpload').onclick=()=>{ const d=scanDraft; closeScan(); scanDraft=null; memorySheet({mode:'light', id:scanTarget, draft:d}); };
 
 /* photo compression */
 let photoMode='light', editDraft=null;
@@ -911,41 +939,52 @@ $('#filePhoto').onchange=async e=>{
 
 /* 4. 刻录回忆 */
 function memorySheet(opt){
-  const x=shoe(opt.id); if(!x) return;
+  const draft=opt.draft||null, x=draft?{...draft}:shoe(opt.id); if(!x) return;
   const isEdit=opt.mode==='edit';
-  const se=Store.s.series.find(z=>z.id===x.seriesId), sn=se?se.name:'';
-  const cws=COLORWAYS[sn.toUpperCase()]||[];
-  editDraft={photo:opt.photo || Store.photo(x) || null};
+  const se=Store.s.series.find(z=>z.id===x.seriesId);
+  const pre=opt.keep||{};
+  editDraft={photo:pre.photo!==undefined?pre.photo:(opt.photo || (draft?null:Store.photo(x)) || null)};
+  const nm0=pre.name!==undefined?pre.name:x.name;
   const plus='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>';
   openSheet(`
     <h2>${isEdit?'编辑回忆':'点亮'}</h2>
     <p class="sub">${isEdit?esc(x.name):'选好配色就能点亮，照片、日期和回忆都可以以后再补'}</p>
     <label class="label"><span class="stepn">01</span>配色</label>
-    ${cws.length?`<div class="chips" style="margin-top:0">${cws.map(k=>{const full=`${sn} ${k}`;return `<button class="chip" data-p="${esc(full)}">${esc(k)}</button>`;}).join('')}</div>`:''}
-    <input class="field" id="inName" maxlength="60" value="${esc(x.name)}" autocomplete="off">
+    <div class="cw-row"><span class="im" id="cwIm"></span><input class="field" id="inName" maxlength="60" value="${esc(nm0)}" autocomplete="off"></div>
+    ${se?`<button class="cw-change" id="cwChange">从配色库里换一个</button>`:''}
     <label class="label"><span class="stepn">02</span>实拍图<span class="opt">选填</span></label>
     <div class="mod" style="margin-top:0"><button class="pick" id="pick"></button><div class="txt"><b id="pickT"></b><span>不传就用官方图，会自动压缩保存</span></div></div>
     <label class="label"><span class="stepn">03</span>入柜日期<span class="opt">选填</span></label>
-    <input class="field mono" type="date" id="inDate" value="${esc(x.date||'')}" max="${todayISO()}">
+    <input class="field mono" type="date" id="inDate" value="${esc(pre.date!==undefined?pre.date:(x.date||''))}" max="${todayISO()}">
     <label class="label"><span class="stepn">04</span>回忆碎片<span class="opt">选填</span></label>
-    <textarea class="field" id="inMem" maxlength="300" placeholder="它是怎么来到你身边的？那天的心情是什么样的">${esc(x.memory||'')}</textarea>
+    <textarea class="field" id="inMem" maxlength="300" placeholder="它是怎么来到你身边的？那天的心情是什么样的">${esc(pre.memory!==undefined?pre.memory:(x.memory||''))}</textarea>
     <div class="count" id="memCount">0 / 300</div>
     <button class="btn" id="okMem" style="margin-top:14px">${isEdit?'保存':'点亮'}</button>`, b=>{
     const mem=b.querySelector('#inMem'), cnt=b.querySelector('#memCount'), dt=b.querySelector('#inDate'), ok=b.querySelector('#okMem'), pick=b.querySelector('#pick'), nmI=b.querySelector('#inName');
-    const sync=()=>{ cnt.textContent=`${mem.value.length} / 300`; const v=nmI.value.trim(); ok.disabled=!v; b.querySelectorAll('.chip').forEach(z=>z.classList.toggle('on',z.dataset.p===v)); };
+    const cwIm=b.querySelector('#cwIm');
+    const sync=()=>{ cnt.textContent=`${mem.value.length} / 300`; const v=nmI.value.trim(); ok.disabled=!v; const o=offImg(v); if(cwIm.dataset.o!==o){ cwIm.dataset.o=o; cwIm.innerHTML=o?`<img src="${o}" alt="">`:sil(); } };
     editDraft.refresh=()=>{ pick.innerHTML=editDraft.photo?`<img src="${editDraft.photo}" alt="">`:plus; pick.style.borderStyle=editDraft.photo?'solid':'dashed'; b.querySelector('#pickT').textContent=editDraft.photo?'更换照片':'选择实拍图'; sync(); };
     editDraft.refresh();
-    b.querySelectorAll('.chip').forEach(z=>z.onclick=()=>{ nmI.value=z.dataset.p; sync(); });
+    const chg=b.querySelector('#cwChange');
+    if(chg) chg.onclick=()=>{
+      const keep={name:nmI.value, date:dt.value, memory:mem.value, photo:editDraft.photo};
+      colorPicker({series:se, mode:'choose', name:nmI.value.trim(), onPick:name=>memorySheet({...opt, keep:{...keep, name}})});
+    };
+    loadCatalog().then(sync).catch(()=>{});
     mem.oninput=sync; nmI.oninput=sync; dt.oninput=dt.onchange=sync;
     pick.onclick=()=>{ $('#filePhoto').value=''; $('#filePhoto').click(); };
     ok.onclick=()=>{
       const nm=nmI.value.trim(); if(!nm) return;
       const date=dt.value||null, memory=mem.value.trim();
-      const okc=commit(()=>{ Object.assign(x,{lit:true,date,memory,name:nm}); if(editDraft.photo) x.photo=editDraft.photo; if(!isEdit) x.litAt=Date.now(); });
+      let y=x;
+      const okc=draft
+        ? commit(()=>{ const t=Date.now(); y={id:uid(),seriesId:draft.seriesId,name:nm,lit:true,date,memory,createdAt:t,litAt:t}; if(editDraft.photo) y.photo=editDraft.photo; Store.s.shoes.push(y); })
+        : commit(()=>{ Object.assign(x,{lit:true,date,memory,name:nm}); if(editDraft.photo) x.photo=editDraft.photo; if(!isEdit) x.litAt=Date.now(); });
       if(!okc) return;
+      const x2=y;
       closeSheet();
-      if(isEdit){ render(); openDetail(x.id,true); toast('已保存'); }
-      else{ justLit=x.id; setTimeout(()=>{ render(); toast(`已点亮 · ${x.name}`); },180); }
+      if(isEdit){ render(); openDetail(x2.id,true); toast('已保存'); }
+      else{ justLit=x2.id; setTimeout(()=>{ render(); toast(`已点亮 · ${x2.name}`); },180); }
     };
   });
 }
@@ -1077,14 +1116,14 @@ let lp=null, lpFired=false;
 $('#grid').addEventListener('pointerdown',e=>{
   const c=e.target.closest('.card.unlit'); lpFired=false; if(!c) return;
   lp=setTimeout(async()=>{ lpFired=true; const x=shoe(c.dataset.id);
-    if(await confirmDlg('移除这个空位？',`「${x.name}」还没有点亮，移除后可以随时再录入`,'移除')){ commit(()=>Store.s.shoes=Store.s.shoes.filter(z=>z.id!==x.id)); render(); }
+    if(await confirmDlg('移除这个空位？',`「${x.name}」还没有点亮，移除后可以随时再点亮`,'移除')){ commit(()=>Store.s.shoes=Store.s.shoes.filter(z=>z.id!==x.id)); render(); }
   },600);
 });
 ['pointerup','pointercancel','pointerleave'].forEach(ev=>$('#grid').addEventListener(ev,()=>clearTimeout(lp)));
 $('#grid').addEventListener('contextmenu',e=>{ if(e.target.closest('.card.unlit')) e.preventDefault(); });
 $('#grid').onclick=e=>{
   if(lpFired){ lpFired=false; return; }
-  if(e.target.closest('#btnNewShoe')) return addShoeSheet();
+  if(e.target.closest('#btnNewShoe')) return newColorway();
   const c=e.target.closest('.card'); if(!c) return;
   const x=shoe(c.dataset.id); if(!x) return;
   if(x.lit) openDetail(x.id); else startScan(x.id);
@@ -1158,8 +1197,9 @@ const Auth = (() => {
 
 Store.onChange(kind => { if(kind === 'local') Cloud.schedule(); else if(!$('#sheet').classList.contains('on')) render(); });
 render();
+if(Store.s.shoes.some(x=>!offImg(x.name))) loadCatalog().then(render).catch(()=>{}); else setTimeout(()=>loadCatalog().catch(()=>{}),1500);
 Cloud.init().then(() => Auth.maybeShowOnStart());
-window.__dex={get state(){return Store.s;}, Store, Cloud, Auth, colorways:Object.entries(COLORWAYS)};
+window.__dex={get state(){return Store.s;}, Store, Cloud, Auth, loadCatalog, get catalog(){return CAT;}, offImg};
 })();
 </script>
 </body>
