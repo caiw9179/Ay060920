@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="7 4.5 50 55"><defs><filter id="g" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="1.1" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>
+<path d="M10.5 47 Q8.6 33.5 14.6 24.4 L13 7.6 Q13 6 14.4 6.8 L26.2 15.6 Q32 14.2 37.8 15.6 L49.6 6.8 Q51 6 51 7.6 L49.4 24.4 Q55.4 33.5 53.5 47 Q51.2 57.6 32 57.6 Q12.8 57.6 10.5 47 Z" fill="#141416" stroke="#5a5a5e" stroke-width=".9" stroke-linejoin="round"/>
+<g filter="url(#g)"><path d="M17.8 37.4 Q23 31 28.6 37.4 Q23 42.6 17.8 37.4 Z" fill="#fff"/><path d="M35.4 37.4 Q41 31 46.2 37.4 Q41 42.6 35.4 37.4 Z" fill="#fff"/></g>
+<rect x="22.6" y="33.6" width="1.1" height="7.4" rx=".55" fill="#141416"/><rect x="40.3" y="33.6" width="1.1" height="7.4" rx=".55" fill="#141416"/>
+<path d="M30.6 45.2 L33.4 45.2 L32 46.8 Z" fill="#5a5a5e"/>
+</svg>
