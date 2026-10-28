@@ -784,19 +784,57 @@ function openSheet(html, onMount){
 function closeSheet(){ $('#scrim').classList.remove('on'); $('#sheet').classList.remove('on'); }
 $('#scrim').onclick = closeSheet;
 
+/* 彩蛋：全屏播放「I only have eyes for you」手写动画（同站 iframe，每次现建现拆，可反复播放） */
+let eggEl=null, eggTimer=0;
+function eggClose(){
+  if(!eggEl) return;
+  const el=eggEl; eggEl=null; clearTimeout(eggTimer);
+  window.removeEventListener('message',eggMsg);
+  el.style.opacity='0';
+  setTimeout(()=>el.remove(),260);
+}
+function eggMsg(e){
+  if(eggEl && e.data && e.data.type==='easteregg-end'){ const f=eggEl.firstChild; if(!f||e.source===f.contentWindow) eggClose(); }
+}
+function playEgg(){
+  if(eggEl) return;
+  const el=document.createElement('div'); el.id='egg';
+  el.style.cssText='position:fixed;left:0;top:0;right:0;bottom:0;width:100%;height:100%;z-index:2147483000;background:#000;opacity:0;transition:opacity .25s;touch-action:manipulation;-webkit-tap-highlight-color:transparent';
+  const f=document.createElement('iframe');
+  f.title='彩蛋'; f.setAttribute('scrolling','no');
+  f.style.cssText='position:absolute;left:0;top:0;width:100%;height:100%;border:0;background:#000;display:block';
+  f.onload=()=>{
+    let ok=false; try{ ok=!!(f.contentWindow&&f.contentWindow.EasterEgg); }catch(_){}
+    if(!ok){ eggClose(); return; }
+    try{ f.focus(); f.contentWindow.focus(); }catch(_){}
+  };
+  f.src='anim/easter-egg.html?v=1';
+  el.appendChild(f); document.body.appendChild(el); eggEl=el;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{ el.style.opacity='1'; }));
+  window.addEventListener('message',eggMsg);
+  eggTimer=setTimeout(eggClose,12000); // 动画 7.8s，兜底
+}
+function eggSkip(){
+  if(!eggEl) return false;
+  try{ eggEl.firstChild.contentWindow.EasterEgg.skip(); }catch(_){ eggClose(); }
+  clearTimeout(eggTimer); eggTimer=setTimeout(eggClose,1500);
+  return true;
+}
+
 /* 1. 建册 */
 function addSeriesSheet(){
   const have = new Set(Store.s.series.map(s=>s.name.toUpperCase()));
   openSheet(`
     <h2>建立新展厅</h2>
     <p class="sub">选一个系列，或者写下你自己的分类</p>
-    <div class="chips">${PRESETS.map(p=>`<button class="chip" data-p="${p}" ${have.has(p)?'disabled':''}>${p}</button>`).join('')}</div>
+    <div class="chips">${PRESETS.map(p=>`<button class="chip" data-p="${p}" ${have.has(p)?'disabled':''}>${p}</button>`).join('')}<button class="chip chip-egg" data-egg="1" type="button">彩蛋</button></div>
     <label class="label">自定义名称</label>
     <input class="field" id="inSeries" maxlength="12" placeholder="例如 AJ4 或 联名" autocomplete="off">
     <button class="btn" id="okSeries" disabled>建立展厅</button>`, b => {
     const inp=b.querySelector('#inSeries'), ok=b.querySelector('#okSeries');
     const sync=()=>{ const v=inp.value.trim(); ok.disabled=!v; b.querySelectorAll('.chip').forEach(c=>c.classList.toggle('on',c.dataset.p===v)); };
-    b.querySelectorAll('.chip').forEach(c=>c.onclick=()=>{ inp.value=c.dataset.p; sync(); });
+    b.querySelectorAll('.chip:not([data-egg])').forEach(c=>c.onclick=()=>{ inp.value=c.dataset.p; sync(); });
+    b.querySelector('.chip-egg').onclick=()=>{ closeSheet(); setTimeout(playEgg,180); };
     inp.oninput=sync;
     inp.onkeydown=e=>{ if(e.key==='Enter' && !ok.disabled) ok.click(); };
     ok.onclick=()=>{
@@ -1133,6 +1171,7 @@ $('#grid').onclick=e=>{
 };
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape') return;
+  if(eggSkip()) return;
   if($('#auth').classList.contains('on')) return Auth.hide();
   if($('#dialog').classList.contains('on')) return $('#dlgNo').click();
   if($('#sheet').classList.contains('on')) return closeSheet();
